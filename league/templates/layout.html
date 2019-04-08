@@ -30,6 +30,7 @@
         <!-- Navbar Right Side -->
         <div class="navbar-nav">
           {% if current_user.is_authenticated %}
+            <button type="button" class="btn btn-light lr-margin">Nova Liga</button>
             <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
           {% else %}
             <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
