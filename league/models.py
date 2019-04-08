@@ -13,11 +13,12 @@ leagues_have_players = db.Table(
         db.PrimaryKeyConstraint('player_id', 'league_id')
 )
 
+
 groups_have_players = db.Table(
         'groups_have_players',
         db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), nullable=False),
         db.Column('player_id', db.Integer, db.ForeignKey('players.id'), nullable=False),
-        db.Column('phase', db.Integer, nullable=False),
+        db.Column('phase', db.Integer, default=0, nullable=False),
         db.PrimaryKeyConstraint('player_id', 'group_id')
 )
 
@@ -32,6 +33,7 @@ class Player(db.Model):
     def __repr__(self):
         return f"Player({self.id}, '{self.name}', '{self.last_name}')"
 
+
 class League(db.Model):
     __tablename__ = 'leagues'
 
@@ -40,6 +42,9 @@ class League(db.Model):
     name = db.Column(db.String(100), nullable=False)
     date_started = db.Column(db.DateTime, nullable=False)
     date_ended = db.Column(db.DateTime)
+    number_of_players = db.Column(db.Integer, nullable=False)
+    groups = db.relationship('Group', backref='league', lazy=True)
+
 
 class Match(db.Model):
     __tablename__ = 'matches'
@@ -58,8 +63,7 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     league_id = db.Column(db.Integer, db.ForeignKey('leagues.id'), nullable=False)
     players = db.relationship('Player', secondary=groups_have_players, backref='groups')
-
-
+    size = db.Column(db.Integer, nullable=False)
 
 
 class User(db.Model, UserMixin):
@@ -70,7 +74,3 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     leagues = db.relationship('League', backref='owner', lazy=True)
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    pass
