@@ -1,5 +1,5 @@
 from flask import render_template, url_for, redirect, flash
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 
 from league import app, db, bcrypt
 from league.forms import RegistrationForm, LoginForm
@@ -26,7 +26,8 @@ def login():
 
 @app.route("/logout")
 def logout():
-    pass
+    logout_user()
+    return redirect(url_for('home'))
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
