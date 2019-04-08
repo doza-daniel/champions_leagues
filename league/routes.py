@@ -1,8 +1,8 @@
 from flask import render_template, url_for, redirect, flash
-from flask_login import current_user
+from flask_login import current_user, login_user
 
 from league import app, db, bcrypt
-from league.forms import RegistrationForm
+from league.forms import RegistrationForm, LoginForm
 from league.models import User
 
 @app.route("/")
@@ -10,9 +10,19 @@ from league.models import User
 def home():
     return render_template('home.html')
 
-@app.route("/login")
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    pass
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('home'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
 
 @app.route("/logout")
 def logout():
