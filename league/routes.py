@@ -2,8 +2,8 @@ from flask import render_template, url_for, redirect, flash
 from flask_login import current_user, login_user, logout_user, login_required
 
 from league import app, db, bcrypt
-from league.forms import RegistrationForm, LoginForm, CreateLeagueForm
-from league.models import User, League, Group
+from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm
+from league.models import User, League, Group, Player
 
 @app.route("/")
 @app.route("/home")
@@ -70,3 +70,16 @@ def create_league():
         return redirect(url_for('home'))
 
     return render_template('create_league.html', title='Create League', form=form)
+
+
+@app.route("/register_player", methods=['GET', 'POST'])
+@login_required
+def register_player():
+    form = RegisterPlayerForm()
+    if form.validate_on_submit():
+        p = Player(name=form.name.data, last_name=form.last_name.data)
+        db.session.add(p)
+        db.session.commit()
+        flash(f"Player has been registered successfully!", 'success')
+
+    return render_template('register_player.html', title='Register Player', form=form)
