@@ -42,7 +42,7 @@ class League(db.Model):
     name = db.Column(db.String(100), nullable=False)
     date_started = db.Column(db.DateTime, nullable=False)
     date_ended = db.Column(db.DateTime)
-    number_of_players = db.Column(db.Integer, nullable=False)
+    number_of_players = db.Column('number_of_players', db.Integer, nullable=False)
     groups = db.relationship('Group', backref='league', lazy=True)
 
 
