@@ -43,3 +43,9 @@ class CreateLeagueForm(FlaskForm):
     group_size = IntegerField('Group Size', validators=[DataRequired()])
 
     submit = SubmitField('Create league')
+
+class RegisterPlayerForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=20)])
+
+    submit = SubmitField('Register Player')
