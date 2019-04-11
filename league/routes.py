@@ -1,8 +1,8 @@
-from flask import render_template, url_for, redirect, flash
+from flask import render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 
 from league import app, db, bcrypt
-from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm
+from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm
 from league.models import User, League, Group, Player
 
 @app.route("/")
@@ -61,6 +61,42 @@ def create_league():
 def list_leagues():
     leagues = League.query.filter_by(owner=current_user).all()
     return render_template('list_leagues.html', title='List Leagues', leagues=leagues)
+
+@app.route("/edit_leagues/<int:league_id>", methods=['GET', 'POST'])
+@login_required
+def edit_leagues(league_id):
+    league = League.query.filter_by(id=league_id).first()
+    if league.date_ended is not None:
+        flash('you are a moron', 'danger')
+        return redirect(url_for('home'))
+
+    _to_add = Player.query.filter(~Player.id.in_([p.id for p in league.players])).all()
+    to_remove = [(p.id, p.name + " " + p.last_name) for p in league.players]
+    to_add = [(p.id, p.name + " " + p.last_name) for p in _to_add]
+
+    start_form = StartLeagueForm()
+    remove_form = RemovePlayerForm(to_remove)
+    add_form = AddPlayerForm(to_add)
+
+    if start_form.start.data and start_form.validate():
+        flash(f"League has been started successfully!", 'success')
+        league.date_started = start_form.date_started.data
+        db.session.commit()
+        return redirect(url_for('home'))
+
+    if add_form.add.data and add_form.validate():
+        for pID in add_form.players_to_add.data:
+            league.players.append(Player.query.get(pID))
+        db.session.commit()
+        return redirect(url_for('edit_leagues', league_id=league_id))
+
+    if remove_form.remove.data and remove_form.validate():
+        league.players = [p for p in league.players if p.id not in remove_form.players_to_remove.data]
+        db.session.commit()
+        return redirect(url_for('edit_leagues', league_id=league_id))
+
+
+    return render_template('edit_league.html', title='Edit League', start_form=start_form, remove_form=remove_form, add_form=add_form)
 
 
 @app.route("/register_player", methods=['GET', 'POST'])
