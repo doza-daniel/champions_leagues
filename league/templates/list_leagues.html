@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content-section">
+    <table class="table table-hover">
+      <th scope="col"> # </th>
+      <th scope="col"> Creator </th>
+      <th scope="col"> Name </th>
+      {% for i in range(leagues|length) %}
+        <tr>
+          <td> {{ i + 1 }} </td>
+          <td> {{ leagues[i].owner.username }} </td>
+          <td> {{ leagues[i].name }} </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock content %}

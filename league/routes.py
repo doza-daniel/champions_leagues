@@ -56,6 +56,12 @@ def create_league():
 
     return render_template('create_league.html', title='Create League', form=form)
 
+@app.route("/list_leagues")
+@login_required
+def list_leagues():
+    leagues = League.query.filter_by(owner=current_user).all()
+    return render_template('list_leagues.html', title='List Leagues', leagues=leagues)
+
 
 @app.route("/register_player", methods=['GET', 'POST'])
 @login_required
