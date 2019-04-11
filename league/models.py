@@ -30,6 +30,11 @@ class Player(db.Model):
     name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
 
+    leagues = db.relationship(
+            "League",
+            secondary=leagues_have_players,
+            back_populates="players")
+
     def __repr__(self):
         return f"Player({self.id}, '{self.name}', '{self.last_name}')"
 
@@ -43,7 +48,10 @@ class League(db.Model):
     date_started = db.Column(db.DateTime)
     date_ended = db.Column(db.DateTime)
     groups = db.relationship('Group', backref='league', lazy=True)
-
+    players = db.relationship(
+            "Player",
+            secondary=leagues_have_players,
+            back_populates="leagues")
 
 class Match(db.Model):
     __tablename__ = 'matches'
