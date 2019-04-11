@@ -40,9 +40,8 @@ class League(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    date_started = db.Column(db.DateTime, nullable=False)
+    date_started = db.Column(db.DateTime)
     date_ended = db.Column(db.DateTime)
-    number_of_players = db.Column('number_of_players', db.Integer, nullable=False)
     groups = db.relationship('Group', backref='league', lazy=True)
 
 

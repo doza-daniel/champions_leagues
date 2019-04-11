@@ -48,24 +48,9 @@ def register():
 def create_league():
     form = CreateLeagueForm()
     if form.validate_on_submit():
-        nplayers = form.number_of_players.data
-
-        league = League(
-            owner_id=current_user.id,
-            name=form.name.data,
-            date_started=form.date_started.data,
-            number_of_players=nplayers
-        )
-
-        group_size = form.group_size.data
-        ngroups = divmod(nplayers, group_size)
-
-        for i in range(0, ngroups[0] if ngroups[1] == 0 else ngroups[0] + 1):
-            league.groups.append(Group(league_id=league.id, size=group_size))
-
+        league = League(owner=current_user, name=form.name.data)
         db.session.add(league)
         db.session.commit()
-
         flash(f"League '{league.name}' has been created successfully!", 'success')
         return redirect(url_for('home'))
 

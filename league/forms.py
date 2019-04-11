@@ -38,9 +38,6 @@ class LoginForm(FlaskForm):
 
 class CreateLeagueForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
-    date_started = DateField('Start Date', default=date.today(), format='%Y-%m-%d')
-    number_of_players = IntegerField('Number of players', validators=[DataRequired()])
-    group_size = IntegerField('Group Size', validators=[DataRequired()])
 
     submit = SubmitField('Create league')
 
