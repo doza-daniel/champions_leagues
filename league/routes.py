@@ -2,7 +2,7 @@ from flask import render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 
 from league import app, db, bcrypt
-from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm
+from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm
 from league.models import User, League, Group, Player
 
 @app.route("/")
@@ -70,6 +70,15 @@ def edit_leagues(league_id):
         flash('you are a moron', 'danger')
         return redirect(url_for('home'))
 
+    end_form = None
+    if league.date_started is not None:
+        end_form = EndLeagueForm()
+        if end_form.end.data and end_form.validate():
+            league.date_ended = end_form.date_ended.data
+            db.session.commit()
+            flash(f"League '{league.name}' ended successfully!", 'success')
+            return redirect(url_for('home'))
+
     _to_add = Player.query.filter(~Player.id.in_([p.id for p in league.players])).all()
     to_remove = [(p.id, p.name + " " + p.last_name) for p in league.players]
     to_add = [(p.id, p.name + " " + p.last_name) for p in _to_add]
@@ -96,8 +105,7 @@ def edit_leagues(league_id):
         return redirect(url_for('edit_leagues', league_id=league_id))
 
 
-    return render_template('edit_league.html', title='Edit League', start_form=start_form, remove_form=remove_form, add_form=add_form)
-
+    return render_template('edit_league.html', title='Edit League', start_form=start_form, remove_form=remove_form, add_form=add_form, end_form=end_form)
 
 @app.route("/register_player", methods=['GET', 'POST'])
 @login_required

@@ -42,11 +42,12 @@ class CreateLeagueForm(FlaskForm):
     submit = SubmitField('Create league')
 
 class StartLeagueForm(FlaskForm):
-    def __init__(self, *args, **kwargs):
-        super(StartLeagueForm, self).__init__(*args, **kwargs)
-
     date_started = DateField('Start Date', default=date.today(), format='%Y-%m-%d')
     start = SubmitField('Start league')
+
+class EndLeagueForm(FlaskForm):
+    date_ended = DateField('End Date', default=date.today(), format='%Y-%m-%d')
+    end = SubmitField('End league')
 
 class RemovePlayerForm(FlaskForm):
     def __init__(self, choices, *args, **kwargs):
