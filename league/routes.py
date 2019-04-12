@@ -1,5 +1,6 @@
 from flask import render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
+from math import ceil
 
 from league import app, db, bcrypt
 from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm
@@ -90,6 +91,9 @@ def edit_leagues(league_id):
     if start_form.start.data and start_form.validate():
         flash(f"League has been started successfully!", 'success')
         league.date_started = start_form.date_started.data
+        generate_league_matches(league,
+                start_form.group_size.data,
+                start_form.number_of_phases.data)
         db.session.commit()
         return redirect(url_for('home'))
 
@@ -112,6 +116,19 @@ def edit_leagues(league_id):
             add_form=add_form,
             end_form=end_form,
             nplayers=len(to_remove))
+
+def generate_league_matches(league, gsize, num_phases):
+    nplayers = len(league.players)
+    ngroups = ceil(nplayers / gsize)
+    groups=[]
+    for i in range(ngroups):
+        groups.append(Group(league=league, size=gsize))
+
+    for i in range(nplayers):
+        loc = divmod(i, ngroups)[1]
+        groups[loc].players.append(league.players[i])
+
+    db.session.commit()
 
 @app.route("/register_player", methods=['GET', 'POST'])
 @login_required
