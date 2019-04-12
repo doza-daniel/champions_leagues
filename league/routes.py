@@ -105,7 +105,13 @@ def edit_leagues(league_id):
         return redirect(url_for('edit_leagues', league_id=league_id))
 
 
-    return render_template('edit_league.html', title='Edit League', start_form=start_form, remove_form=remove_form, add_form=add_form, end_form=end_form)
+    return render_template('edit_league.html',
+            title='Edit League',
+            start_form=start_form,
+            remove_form=remove_form,
+            add_form=add_form,
+            end_form=end_form,
+            nplayers=len(to_remove))
 
 @app.route("/register_player", methods=['GET', 'POST'])
 @login_required

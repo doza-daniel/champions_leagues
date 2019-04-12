@@ -28,9 +28,8 @@
       <form method="POST" action="">
         {{ add_form.hidden_tag() }}
         <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Remove player from league</legend>
+          <legend class="border-bottom mb-4">Available players</legend>
           <div class="form-group">
-            {{ add_form.players_to_add.label(class="form-control-label") }}
             {% if add_form.players_to_add.errors %}
               {{ add_form.players_to_add(class="form-control form-control-lg is-invalid") }}
               <div class="invalid-feedback">
@@ -50,9 +49,8 @@
       <form method="POST" action="">
         {{ remove_form.hidden_tag() }}
         <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Remove player from league</legend>
+          <legend class="border-bottom mb-4">Playing</legend>
           <div class="form-group">
-            {{ remove_form.players_to_remove.label(class="form-control-label") }}
             {% if remove_form.players_to_remove.errors %}
               {{ remove_form.players_to_remove(class="form-control form-control-lg is-invalid") }}
               <div class="invalid-feedback">
@@ -67,6 +65,7 @@
         </fieldset>
         <div class="form-group">
           {{ remove_form.remove(class="btn btn-danger") }}
+          <span style="float: right">Number of Players: {{ nplayers }}</span>
         </div>
       </form>
       <form method="POST" action="">
@@ -84,6 +83,32 @@
               </div>
             {% else %}
               {{ start_form.date_started(class="date form-control form-control-lg") }}
+            {% endif %}
+          </div>
+          <div class="form-group">
+            {{ start_form.group_size.label(class="form-control-label") }}
+            {% if start_form.group_size.errors %}
+              {{ start_form.group_size(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in start_form.group_size.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ start_form.group_size(class="date form-control form-control-lg") }}
+            {% endif %}
+          </div>
+          <div class="form-group">
+            {{ start_form.number_of_phases.label(class="form-control-label") }}
+            {% if start_form.number_of_phases.errors %}
+              {{ start_form.number_of_phases(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in start_form.number_of_phases.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ start_form.number_of_phases(class="date form-control form-control-lg") }}
             {% endif %}
           </div>
         </fieldset>

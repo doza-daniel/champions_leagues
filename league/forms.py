@@ -43,6 +43,8 @@ class CreateLeagueForm(FlaskForm):
 
 class StartLeagueForm(FlaskForm):
     date_started = DateField('Start Date', default=date.today(), format='%Y-%m-%d')
+    group_size = IntegerField('Group Size', default=1, validators=[DataRequired()])
+    number_of_phases = IntegerField('Number of phases', default=1, validators=[DataRequired()])
     start = SubmitField('Start league')
 
 class EndLeagueForm(FlaskForm):
