@@ -68,7 +68,7 @@ class AddPlayerForm(FlaskForm):
     add = SubmitField('Add')
 
 class RegisterPlayerForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)], render_kw={'autofocus': True})
     last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=20)])
 
     submit = SubmitField('Register Player')

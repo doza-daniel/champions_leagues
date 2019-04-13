@@ -139,5 +139,6 @@ def register_player():
         db.session.add(p)
         db.session.commit()
         flash(f"Player has been registered successfully!", 'success')
+        return redirect(url_for('register_player'))
 
     return render_template('register_player.html', title='Register Player', form=form)
