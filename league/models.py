@@ -53,15 +53,20 @@ class League(db.Model):
             secondary=leagues_have_players,
             back_populates="leagues")
 
+    matches = db.relationship("Match", backref='league', lazy=True)
+
 class Match(db.Model):
     __tablename__ = 'matches'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     league_id = db.Column(db.Integer, db.ForeignKey('leagues.id'), nullable=False)
-    player_one = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
-    player_two = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    player_one_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    player_two_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     player_one_score = db.Column(db.Integer, default=0, nullable=False)
     player_two_score = db.Column(db.Integer, default=0, nullable=False)
+    played_on = db.Column(db.DateTime)
+    player_one = db.relationship(Player, foreign_keys=player_one_id)
+    player_two = db.relationship(Player, foreign_keys=player_two_id)
 
 
 class Group(db.Model):
@@ -71,6 +76,7 @@ class Group(db.Model):
     league_id = db.Column(db.Integer, db.ForeignKey('leagues.id'), nullable=False)
     players = db.relationship('Player', secondary=groups_have_players, backref='groups')
     size = db.Column(db.Integer, nullable=False)
+
 
 
 class User(db.Model, UserMixin):
