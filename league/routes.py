@@ -53,7 +53,7 @@ def create_league():
         db.session.add(league)
         db.session.commit()
         flash(f"League '{league.name}' has been created successfully!", 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('edit_leagues', league_id=league.id))
 
     return render_template('create_league.html', title='Create League', form=form)
 
