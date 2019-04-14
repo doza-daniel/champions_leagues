@@ -1,10 +1,11 @@
 from flask import render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 from math import ceil
+from itertools import combinations
 
 from league import app, db, bcrypt
 from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm
-from league.models import User, League, Group, Player
+from league.models import User, League, Group, Player, Match
 
 @app.route("/")
 @app.route("/home")
@@ -122,11 +123,17 @@ def generate_league_matches(league, gsize, num_phases):
     ngroups = ceil(nplayers / gsize)
     groups=[]
     for i in range(ngroups):
-        groups.append(Group(league=league, size=gsize))
+        group = Group(league=league, size=gsize)
+        groups.append(group)
+        db.session.add(group)
 
     for i in range(nplayers):
-        loc = divmod(i, ngroups)[1]
-        groups[loc].players.append(league.players[i])
+        groups[i % ngroups].players.append(league.players[i])
+
+    matches = []
+    for group in groups:
+        for p1, p2 in combinations(group.players, 2):
+            db.session.add(Match(player_one=p1, player_two=p2, league=league))
 
     db.session.commit()
 
