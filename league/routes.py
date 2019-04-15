@@ -75,12 +75,14 @@ def edit_leagues(league_id):
 
     end_form = None
     if league.date_started is not None:
-        end_form = EndLeagueForm()
-        if end_form.end.data and end_form.validate():
-            league.date_ended = end_form.date_ended.data
-            db.session.commit()
-            flash(f"League '{league.name}' ended successfully!", 'success')
-            return redirect(url_for('home'))
+        league_started=True
+        if all(map(lambda x: x.played_on, league.matches)):
+            end_form = EndLeagueForm()
+            if end_form.end.data and end_form.validate():
+                league.date_ended = end_form.date_ended.data
+                db.session.commit()
+                flash(f"League '{league.name}' ended successfully!", 'success')
+                return redirect(url_for('home'))
 
     _to_add = Player.query.filter(~Player.id.in_([p.id for p in league.players])).all()
     to_remove = [(p.id, p.name + " " + p.last_name) for p in league.players]
@@ -117,6 +119,7 @@ def edit_leagues(league_id):
             remove_form=remove_form,
             add_form=add_form,
             end_form=end_form,
+            league_started=league_started,
             nplayers=len(to_remove),
             groups=league.groups)
 
