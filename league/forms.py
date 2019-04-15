@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField,  IntegerField, SelectMultipleField
 from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from datetime import date
 from league.models import User
 
@@ -72,3 +72,20 @@ class RegisterPlayerForm(FlaskForm):
     last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=20)])
 
     submit = SubmitField('Register Player')
+
+def generate_edit_match_form(player1, player2):
+    class EditMatchForm(FlaskForm): pass
+    EditMatchForm.player_one_score = IntegerField(
+            f"{player1.name} {player1.last_name}",
+            validators=[NumberRange(min=0)],
+            default=0
+    )
+    EditMatchForm.player_two_score = IntegerField(
+            f"{player2.name} {player2.last_name}",
+            validators=[NumberRange(min=0)],
+            default=0
+    )
+    EditMatchForm.played_on = DateField('Played on', default=date.today(), format='%Y-%m-%d')
+    EditMatchForm.submit = SubmitField('Finish')
+
+    return EditMatchForm()
