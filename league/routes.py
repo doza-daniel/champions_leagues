@@ -133,7 +133,7 @@ def generate_league_matches(league, gsize, num_phases):
     matches = []
     for group in groups:
         for p1, p2 in combinations(group.players, 2):
-            db.session.add(Match(player_one=p1, player_two=p2, league=league))
+            db.session.add(Match(player_one=p1, player_two=p2, league=league, group=group))
 
     db.session.commit()
 

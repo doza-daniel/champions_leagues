@@ -60,6 +60,7 @@ class Match(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     league_id = db.Column(db.Integer, db.ForeignKey('leagues.id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     player_one_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     player_two_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     player_one_score = db.Column(db.Integer, default=0, nullable=False)
@@ -76,6 +77,7 @@ class Group(db.Model):
     league_id = db.Column(db.Integer, db.ForeignKey('leagues.id'), nullable=False)
     players = db.relationship('Player', secondary=groups_have_players, backref='groups')
     size = db.Column(db.Integer, nullable=False)
+    matches = db.relationship('Match', backref='group', lazy=True)
 
 
 
