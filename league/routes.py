@@ -116,7 +116,8 @@ def edit_leagues(league_id):
             remove_form=remove_form,
             add_form=add_form,
             end_form=end_form,
-            nplayers=len(to_remove))
+            nplayers=len(to_remove),
+            groups=league.groups)
 
 def generate_league_matches(league, gsize, num_phases):
     nplayers = len(league.players)

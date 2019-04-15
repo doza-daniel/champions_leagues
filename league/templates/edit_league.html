@@ -2,6 +2,33 @@
 {% block content %}
   <div class="content-section">
     {% if end_form %}
+      {% for group in groups %}
+        <table class="table table-hover">
+        <thead>
+            <tr>
+              <th colspan="3" class="text-center">Group {{loop.index}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for match in group.matches %}
+              <tr>
+                <td>{{match.player_one.name + " " + match.player_one.last_name}}</td>
+                <td>{{match.player_one_score}} : {{match.player_two_score}}</td>
+                <td>{{match.player_two.name + " " + match.player_two.last_name}}</td>
+                {% if match.played_on is none %}
+                  <td><a role="button" href="{{url_for('finish_match', match_id=match.id)}}" class="btn btn-secondary">edit</a></td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br><br>
+      {% endfor %}
+      <br />
+      <br />
       <form method="POST" action="">
         {{ end_form.hidden_tag() }}
         <fieldset class="form-group">
