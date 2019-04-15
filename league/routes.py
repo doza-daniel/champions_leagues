@@ -2,9 +2,10 @@ from flask import render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 from math import ceil
 from itertools import combinations
+from datetime import datetime
 
 from league import app, db, bcrypt
-from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm
+from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm, generate_edit_match_form
 from league.models import User, League, Group, Player, Match
 
 @app.route("/")
@@ -150,3 +151,20 @@ def register_player():
         return redirect(url_for('register_player'))
 
     return render_template('register_player.html', title='Register Player', form=form)
+
+
+@app.route("/finish_match/<int:match_id>", methods=['GET', 'POST'])
+@login_required
+def finish_match(match_id):
+    match = Match.query.get(match_id)
+    form = generate_edit_match_form(match.player_one, match.player_two)
+    if form.validate_on_submit():
+        match.player_one_score = form.player_one_score.data
+        match.player_two_score = form.player_two_score.data
+        match.played_on = form.played_on.data
+        db.session.commit()
+        flash("hoopla", 'info')
+        return redirect(url_for('edit_leagues', league_id=match.league.id))
+
+    return render_template('finish_match.html', title='Finish Match', form=form)
+
