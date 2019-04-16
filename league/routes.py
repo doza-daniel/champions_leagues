@@ -75,7 +75,6 @@ def edit_leagues(league_id):
 
     end_form = None
     if league.date_started is not None:
-        league_started=True
         if all(map(lambda x: x.played_on, league.matches)):
             end_form = EndLeagueForm()
             if end_form.end.data and end_form.validate():
@@ -119,7 +118,7 @@ def edit_leagues(league_id):
             remove_form=remove_form,
             add_form=add_form,
             end_form=end_form,
-            league_started=league_started,
+            league=league,
             nplayers=len(to_remove),
             groups=league.groups)
 
