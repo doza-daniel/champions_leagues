@@ -8,8 +8,8 @@ from league.models import User
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username',
-                           validators=[DataRequired(), Length(min=2, max=20)])
+    username = StringField('Username', validators=[DataRequired(),
+                           Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -44,7 +44,8 @@ class CreateLeagueForm(FlaskForm):
 class StartLeagueForm(FlaskForm):
     date_started = DateField('Start Date', default=date.today(), format='%Y-%m-%d')
     group_size = IntegerField('Group Size', default=1, validators=[DataRequired()])
-    number_of_phases = IntegerField('Number of phases', default=1, validators=[DataRequired()])
+    number_of_phases = IntegerField('Number of phases', default=1,
+                                    validators=[DataRequired()])
     start = SubmitField('Start league')
 
 class EndLeagueForm(FlaskForm):
@@ -68,8 +69,11 @@ class AddPlayerForm(FlaskForm):
     add = SubmitField('Add')
 
 class RegisterPlayerForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)], render_kw={'autofocus': True})
-    last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=20)])
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)],
+                       render_kw={'autofocus': True})
+
+    last_name = StringField('Last Name', validators=[DataRequired(),
+                            Length(min=2, max=20)])
 
     submit = SubmitField('Register Player')
 
@@ -85,13 +89,16 @@ def generate_edit_match_form(match):
             validators=[NumberRange(min=0)],
             default=0))
 
-    setattr(EditMatchForm, f"played_on_{match.id}", DateField('Played on', default=date.today(), format='%Y-%m-%d'))
+    setattr(EditMatchForm, f"played_on_{match.id}",
+            DateField('Played on', default=date.today(), format='%Y-%m-%d'))
+
     setattr(EditMatchForm, f"{match.id}", SubmitField('Finish'))
 
     def validate(self):
         if not FlaskForm.validate(self):
             return False
-        valid = self[f"player_one_score_{match.id}"].data != self[f"player_two_score_{match.id}"].data
+        valid = self[f"player_one_score_{match.id}"].data != \
+                self[f"player_two_score_{match.id}"].data
         if not valid:
             self[f"player_one_score_{match.id}"].errors.append("can't be equal")
             self[f"player_two_score_{match.id}"].errors.append("can't be equal")
