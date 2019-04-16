@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from math import ceil
 from itertools import combinations
 from datetime import datetime
+from hashlib import sha1
 
 from league import app, db, bcrypt
 from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm, generate_edit_match_form
@@ -74,7 +75,9 @@ def edit_leagues(league_id):
         return redirect(url_for('home'))
 
     end_form = None
+    groups = None
     if league.date_started is not None:
+        groups = sum_matches(league)
         if all(map(lambda x: x.played_on, league.matches)):
             end_form = EndLeagueForm()
             if end_form.end.data and end_form.validate():
@@ -120,7 +123,37 @@ def edit_leagues(league_id):
             end_form=end_form,
             league=league,
             nplayers=len(to_remove),
-            groups=league.groups)
+            groups=groups)
+
+# each pair in groups plays two matches, this function groups them by encounter
+# and calculates 'meta' score. for example:
+# p1 and p2 in group g1 have played 2 matches with scores [p1: 7 - 3 :p2] [p1: 7 - 2 :p2]
+# so the meta score will be [p1: 2 - 0 :p2]
+def sum_matches(league):
+    meta = {}
+    for group in league.groups:
+        meta[group] = {}
+        for match in group.matches:
+            key = sha1('-'.join([str(match.player_one.id),str(match.player_two.id)]).encode('utf-8')).hexdigest()
+            p1ms, p2ms = get_meta_score(match)
+            if not meta[group].get(key):
+                meta[group][key] = {"matches":[match], "p1": p1ms, "p2": p2ms}
+            else:
+                meta[group][key]["matches"].append(match)
+                meta[group][key]["p1"] += p1ms
+                meta[group][key]["p2"] += p2ms
+        for key, encounter in meta[group].items():
+            print(encounter)
+            encounter["done"] = all(map(lambda x: x.played_on, encounter["matches"]))
+            encounter["id"] = "-".join(map(lambda x: str(x.id), encounter["matches"]))
+
+
+    return meta
+
+def get_meta_score(match):
+    p1 = 1 if match.player_one_score > match.player_two_score else 0
+    p2 = 1 if match.player_two_score > match.player_one_score else 0
+    return (p1, p2)
 
 def generate_league_matches(league, gsize, num_phases):
     nplayers = len(league.players)

@@ -2,7 +2,7 @@
 {% block content %}
   <div class="content-section">
     {% if league.date_started %}
-      {% for group in groups %}
+      {% for k, group in groups.items() %}
         <table class="table table-hover">
         <thead>
             <tr>
@@ -11,18 +11,19 @@
             </tr>
           </thead>
           <tbody>
-            {% for match in group.matches %}
+            {% for key, encounter in group.items() %}
               <tr>
-                <td>{{match.player_one.name + " " + match.player_one.last_name}}</td>
-                <td>{{match.player_one_score}} : {{match.player_two_score}}</td>
-                <td>{{match.player_two.name + " " + match.player_two.last_name}}</td>
-                {% if match.played_on is none %}
-                  <td><a role="button" href="{{url_for('finish_match', match_id=match.id)}}" class="btn btn-secondary">edit</a></td>
+                <td>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</td>
+                <td>{{encounter.p1}} : {{encounter.p2}}</td>
+                <td>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</td>
+                {% if not encounter.done %}
+                  <td><a role="button" href="{{url_for('finish_match', matches=encounter.id)}}" class="btn btn-secondary">edit</a></td>
                 {% else %}
                   <td></td>
                 {% endif %}
               </tr>
             {% endfor %}
+
           </tbody>
         </table>
         <br><br>
