@@ -73,19 +73,26 @@ class RegisterPlayerForm(FlaskForm):
 
     submit = SubmitField('Register Player')
 
-def generate_edit_match_form(player1, player2):
+def generate_edit_match_form(match):
     class EditMatchForm(FlaskForm): pass
     EditMatchForm.player_one_score = IntegerField(
-            f"{player1.name} {player1.last_name}",
+            f"{match.player_one.name} {match.player_one.last_name}",
             validators=[NumberRange(min=0)],
             default=0
     )
     EditMatchForm.player_two_score = IntegerField(
-            f"{player2.name} {player2.last_name}",
+            f"{match.player_two.name} {match.player_two.last_name}",
             validators=[NumberRange(min=0)],
             default=0
     )
+    def validate(self):
+        if not FlaskForm.validate(self):
+            return False
+        return not self.player_one_score.data == 0 and self.player_two_score.data == 0
+
+    EditMatchForm.validate = validate
     EditMatchForm.played_on = DateField('Played on', default=date.today(), format='%Y-%m-%d')
-    EditMatchForm.submit = SubmitField('Finish')
+    setattr(EditMatchForm, f"{match.id}", SubmitField('Finish'))
 
     return EditMatchForm()
+

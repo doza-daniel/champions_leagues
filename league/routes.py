@@ -171,6 +171,7 @@ def generate_league_matches(league, gsize, num_phases):
     for group in groups:
         for p1, p2 in combinations(group.players, 2):
             db.session.add(Match(player_one=p1, player_two=p2, league=league, group=group))
+            db.session.add(Match(player_one=p1, player_two=p2, league=league, group=group))
 
     db.session.commit()
 
@@ -188,18 +189,23 @@ def register_player():
     return render_template('register_player.html', title='Register Player', form=form)
 
 
-@app.route("/finish_match/<int:match_id>", methods=['GET', 'POST'])
+@app.route("/finish_match/<string:matches>", methods=['GET', 'POST'])
 @login_required
-def finish_match(match_id):
-    match = Match.query.get(match_id)
-    form = generate_edit_match_form(match.player_one, match.player_two)
-    if form.validate_on_submit():
-        match.player_one_score = form.player_one_score.data
-        match.player_two_score = form.player_two_score.data
-        match.played_on = form.played_on.data
-        db.session.commit()
-        flash("hoopla", 'info')
-        return redirect(url_for('edit_leagues', league_id=match.league.id))
+def finish_match(matches):
+    forms = []
+    for match_id in map(lambda x: int(x), matches.split('-')):
+        match = Match.query.get(match_id)
+        form = generate_edit_match_form(match)
+        forms.append({"match_id": str(match.id), "form": form})
+        print("form", form[str(match.id)], form.validate())
+        if form[str(match.id)].data and form.validate():
+            print("valid")
+            match.player_one_score = form.player_one_score.data
+            match.player_two_score = form.player_two_score.data
+            match.played_on = form.played_on.data
+            db.session.commit()
+            flash("hoopla", 'info')
+            return redirect(url_for('edit_leagues', league_id=match.league.id))
 
-    return render_template('finish_match.html', title='Finish Match', form=form)
+    return render_template('finish_match.html', title='Finish Match', forms=forms)
 
