@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField,  IntegerField, SelectMultipleField
 from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, EqualTo
 from datetime import date
 from league.models import User
 
@@ -75,24 +75,30 @@ class RegisterPlayerForm(FlaskForm):
 
 def generate_edit_match_form(match):
     class EditMatchForm(FlaskForm): pass
-    EditMatchForm.player_one_score = IntegerField(
+    setattr(EditMatchForm, f"player_one_score_{match.id}", IntegerField(
             f"{match.player_one.name} {match.player_one.last_name}",
             validators=[NumberRange(min=0)],
-            default=0
-    )
-    EditMatchForm.player_two_score = IntegerField(
+            default=0))
+
+    setattr(EditMatchForm, f"player_two_score_{match.id}", IntegerField(
             f"{match.player_two.name} {match.player_two.last_name}",
             validators=[NumberRange(min=0)],
-            default=0
-    )
+            default=0))
+
+    setattr(EditMatchForm, f"played_on_{match.id}", DateField('Played on', default=date.today(), format='%Y-%m-%d'))
+    setattr(EditMatchForm, f"{match.id}", SubmitField('Finish'))
+
     def validate(self):
         if not FlaskForm.validate(self):
             return False
-        return not self.player_one_score.data == 0 and self.player_two_score.data == 0
+        valid = self[f"player_one_score_{match.id}"].data != self[f"player_two_score_{match.id}"].data
+        if not valid:
+            self[f"player_one_score_{match.id}"].errors.append("can't be equal")
+            self[f"player_two_score_{match.id}"].errors.append("can't be equal")
+
+        return valid
 
     EditMatchForm.validate = validate
-    EditMatchForm.played_on = DateField('Played on', default=date.today(), format='%Y-%m-%d')
-    setattr(EditMatchForm, f"{match.id}", SubmitField('Finish'))
 
     return EditMatchForm()
 

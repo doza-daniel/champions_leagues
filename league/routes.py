@@ -196,13 +196,13 @@ def finish_match(matches):
     for match_id in map(lambda x: int(x), matches.split('-')):
         match = Match.query.get(match_id)
         form = generate_edit_match_form(match)
-        forms.append({"match_id": str(match.id), "form": form})
+        forms.append({"match": match, "form": form})
         print("form", form[str(match.id)], form.validate())
         if form[str(match.id)].data and form.validate():
             print("valid")
-            match.player_one_score = form.player_one_score.data
-            match.player_two_score = form.player_two_score.data
-            match.played_on = form.played_on.data
+            match.player_one_score = form[f"player_one_score_{match.id}"].data
+            match.player_two_score = form[f"player_two_score_{match.id}"].data
+            match.played_on = form[f"played_on_{match.id}"].data
             db.session.commit()
             flash("hoopla", 'info')
             return redirect(url_for('edit_leagues', league_id=match.league.id))

@@ -1,55 +1,62 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="content-section">
-    {% for form in forms %}
-      <form method="POST" action="">
-        {{ form["form"].hidden_tag() }}
-        <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Finish Match</legend>
-          <div class="form-group form-inline">
-            {{ form["form"].player_one_score.label(class="label form-control-label") }}
-            {% if form["form"].player_one_score.errors %}
-              {{ form["form"].player_one_score(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                {% for error in form["form"].player_one_score.errors %}
-                  <span>{{ error }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ form["form"].player_one_score(class="date form-control form-control-lg") }}
-            {% endif %}
-          </div>
-          <div class="form-group form-inline">
-            {{ form["form"].player_two_score.label(class="label form-control-label") }}
-            {% if form["form"].player_two_score.errors %}
-              {{ form["form"].player_two_score(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                {% for error in form["form"].player_two_score.errors %}
-                  <span>{{ error }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ form["form"].player_two_score(class="date form-control form-control-lg") }}
-            {% endif %}
-          </div>
+    {% for _form in forms %}
+      {% if not _form["match"].played_on %}
+        {% set form = _form["form"] %}
+        {% set match_id = _form["match"].id|string %}
+        {% set p1_score = "player_one_score_" +_form["match"].id|string %}
+        {% set p2_score = "player_two_score_" +_form["match"].id|string %}
+        {% set played_on = "played_on_" +_form["match"].id|string %}
+        <form method="POST" action="">
+          {{ form.hidden_tag() }}
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Finish Match</legend>
+            <div class="form-group form-inline">
+              {{ form[p1_score].label(class="label form-control-label") }}
+              {% if form[p1_score].errors %}
+                {{ form[p1_score](class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in form[p1_score].errors %}
+                    <span>{{ error }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                {{ form[p1_score](class="date form-control form-control-lg") }}
+              {% endif %}
+            </div>
+            <div class="form-group form-inline">
+              {{ form[p2_score].label(class="label form-control-label") }}
+              {% if form[p2_score].errors %}
+                {{ form[p2_score](class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in form[p2_score].errors %}
+                    <span>{{ error }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                {{ form[p2_score](class="date form-control form-control-lg") }}
+              {% endif %}
+            </div>
+            <div class="form-group">
+              {{ form[played_on].label(class="form-control-label") }}
+              {% if form[played_on].errors %}
+                {{ form[played_on](class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in form[played_on].errors %}
+                    <span>{{ error }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                {{ form[played_on](class="date form-control form-control-lg") }}
+              {% endif %}
+            </div>
+          </fieldset>
           <div class="form-group">
-            {{ form["form"].played_on.label(class="form-control-label") }}
-            {% if form["form"].played_on.errors %}
-              {{ form["form"].played_on(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                {% for error in form["form"].played_on.errors %}
-                  <span>{{ error }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ form["form"].played_on(class="date form-control form-control-lg") }}
-            {% endif %}
+            {{ form[match_id](class="btn btn-outline-info") }}
           </div>
-        </fieldset>
-        <div class="form-group">
-          {{ form["form"][form["match_id"]](class="btn btn-outline-info") }}
-        </div>
-      </form>
+        </form>
+      {% endif %}
     {% endfor %}
   </div>
 {% endblock content %}
