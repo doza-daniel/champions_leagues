@@ -44,8 +44,8 @@
   </nav>
 </header>
 <main role="main" class="container">
-  <div class="row">
-    <div class="col-md-8">
+  <div class="">
+    <div class="">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
@@ -56,20 +56,6 @@
         {% endif %}
       {% endwith %}
       {% block content %}{% endblock %}
-    </div>
-    <div class="col-md-4">
-      <div class="content-section">
-        <h3>Our Sidebar</h3>
-        <p class='text-muted'>Muted text
-          <ul class="list-group">
-            <li class="list-group-item list-group-item-light">Placeholder1</li>
-            <li class="list-group-item list-group-item-light">Placeholder2</li>
-            <li class="list-group-item list-group-item-light">Placeholder3</li>
-            <li class="list-group-item list-group-item-light">Placeholder4</li>
-            <li class="list-group-item list-group-item-light">Placeholder5</li>
-          </ul>
-        </p>
-      </div>
     </div>
   </div>
 </main>
