@@ -197,14 +197,12 @@ def finish_match(matches):
         match = Match.query.get(match_id)
         form = generate_edit_match_form(match)
         forms.append({"match": match, "form": form})
-        print("form", form[str(match.id)], form.validate())
         if form[str(match.id)].data and form.validate():
-            print("valid")
             match.player_one_score = form[f"player_one_score_{match.id}"].data
             match.player_two_score = form[f"player_two_score_{match.id}"].data
             match.played_on = form[f"played_on_{match.id}"].data
             db.session.commit()
-            flash("hoopla", 'info')
+            flash('Match finished successfully!', 'success')
             return redirect(url_for('edit_leagues', league_id=match.league.id))
 
     return render_template('finish_match.html', title='Finish Match', forms=forms)
