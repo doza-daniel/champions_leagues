@@ -77,6 +77,7 @@ class Group(db.Model):
     league_id = db.Column(db.Integer, db.ForeignKey('leagues.id'), nullable=False)
     players = db.relationship('Player', secondary=groups_have_players, backref='groups')
     size = db.Column(db.Integer, nullable=False)
+    phase = db.Column(db.Integer, nullable=False)
     matches = db.relationship('Match', backref='group', lazy=True)
 
 
