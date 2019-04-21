@@ -91,7 +91,7 @@ def edit_leagues(league_id):
     to_remove = [(p.id, p.name + " " + p.last_name) for p in league.players]
     to_add = [(p.id, p.name + " " + p.last_name) for p in _to_add]
 
-    start_form = StartLeagueForm()
+    start_form = StartLeagueForm(league)
     remove_form = RemovePlayerForm(to_remove)
     add_form = AddPlayerForm(to_add)
 
@@ -176,7 +176,7 @@ def get_meta_score(match):
 
 def generate_league_matches(league, gsize, num_phases):
     nplayers = len(league.players)
-    ngroups = ceil(nplayers / gsize)
+    ngroups = gsize
     groups=[]
     for i in range(ngroups):
         group = Group(league=league, size=gsize, phase=0)

@@ -4,6 +4,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField,  Inte
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, EqualTo
 from datetime import date
+from math import ceil, sqrt
 from league.models import User
 
 
@@ -42,11 +43,21 @@ class CreateLeagueForm(FlaskForm):
     submit = SubmitField('Create league')
 
 class StartLeagueForm(FlaskForm):
+    def __init__(self, league, *args, **kwargs):
+        super(StartLeagueForm, self).__init__(*args, **kwargs)
+        self.league = league
+
     date_started = DateField('Start Date', default=date.today(), format='%Y-%m-%d')
     group_size = IntegerField('Group Size', default=1, validators=[DataRequired()])
     number_of_phases = IntegerField('Number of phases', default=1,
                                     validators=[DataRequired()])
+
+    def validate_group_size(self, field):
+        if field.data * field.data <= len(self.league.players):
+            raise ValidationError(f'Group size must be greater than {ceil(sqrt(len(self.league.players)))}')
+
     start = SubmitField('Start league')
+
 
 class EndLeagueForm(FlaskForm):
     date_ended = DateField('End Date', default=date.today(), format='%Y-%m-%d')
