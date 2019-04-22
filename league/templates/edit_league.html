@@ -2,33 +2,46 @@
 {% block content %}
   <div class="content-section">
     {% if league.date_started %}
-      {% for i, groups in phases.items() %}
-        <h1>Faza {{ i + 1 }} </h1>
-        {% for k, group in groups.items() %}
-          <table class="table table-hover">
-          <thead>
-              <tr>
-                <th colspan="3" class="text-center">Group {{loop.index}}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for key, encounter in group.items() %}
-                <tr>
-                  <td>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</td>
-                  <td>{{encounter.p1}} : {{encounter.p2}}</td>
-                  <td>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</td>
-                  {% if not encounter.done %}
-                    <td><a role="button" href="{{url_for('finish_match', matches=encounter.id)}}" class="btn btn-secondary">edit</a></td>
-                  {% else %}
-                    <td></td>
-                  {% endif %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <br><br>
+      <ul class="nav nav-tabs">
+        {% for i, phase in phases.items() %}
+          <li class="nav-item">
+            {% if phase_num|int == i or (i == 0 and not phase_num) %}
+              <a class="nav-link active" style="color: black" href="{{url_for('edit_leagues', league_id=league.id, phase=i)}}"> Faza {{ i + 1 }} </a>
+            {% else %}
+              <a class="nav-link" style="color: gray" href="{{url_for('edit_leagues', league_id=league.id, phase=i)}}"> Faza {{ i + 1 }} </a>
+            {% endif %}
+          </li>
         {% endfor %}
+      </ul>
+      {% if phase_num %}
+        {% set groups = phases[phase_num|int] %}
+      {% else %}
+        {% set groups = phases[0] %}
+      {% endif %}
+      {% for k, group in groups.items() %}
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th colspan="3" class="text-center">Group {{loop.index}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, encounter in group.items() %}
+              <tr>
+                <td>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</td>
+                <td>{{encounter.p1}} : {{encounter.p2}}</td>
+                <td>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</td>
+                {% if not encounter.done %}
+                  <td><a role="button" href="{{url_for('finish_match', matches=encounter.id)}}" class="btn btn-secondary">edit</a></td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br><br>
       {% endfor %}
       <br />
       <br />

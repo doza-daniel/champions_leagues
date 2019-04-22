@@ -77,7 +77,9 @@ def edit_leagues(league_id):
 
     end_form = None
     phases = None
+    phase_num = None
     if league.date_started is not None:
+        phase_num = request.args.get('phase')
         phases = sum_matches(league)
         if all(map(lambda x: x.played_on, league.matches)):
             end_form = EndLeagueForm()
@@ -124,7 +126,8 @@ def edit_leagues(league_id):
             end_form=end_form,
             league=league,
             nplayers=len(to_remove),
-            phases=phases)
+            phases=phases,
+            phase_num=phase_num)
 
 # each pair in groups plays two matches, this function groups them by encounter
 # and calculates 'meta' score. for example:
