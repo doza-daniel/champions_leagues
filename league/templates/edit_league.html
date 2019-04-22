@@ -19,28 +19,30 @@
         {% set groups = phases[0] %}
       {% endif %}
       {% for k, group in groups.items() %}
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th colspan="3" class="text-center">Group {{loop.index}}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for key, encounter in group.items() %}
-              <tr>
-                <td>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</td>
-                <td>{{encounter.p1}} : {{encounter.p2}}</td>
-                <td>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</td>
-                {% if not encounter.done %}
-                  <td><a role="button" href="{{url_for('finish_match', matches=encounter.id)}}" class="btn btn-secondary">edit</a></td>
-                {% else %}
-                  <td></td>
-                {% endif %}
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="row text-xl-center group-head">
+          <div class="col-xl">
+            <h2>Group {{ loop.index }}</h2>
+          </div>
+        </div>
+        <hr />
+        {% for key, encounter in group.items() %}
+          {% if not encounter.done %}
+            {% set hoverable="group-row-hoverable" %}
+            {% set clickable="clickable-row" %}
+            {% set finish_href="data-href=" + url_for('finish_match', matches=encounter.id) %}
+          {% endif %}
+          <div class="row {{clickable}} {{hoverable}} group-row" {{finish_href}}>
+            <div class="col-md">
+              <h5>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</h5>
+            </div>
+            <div class="col-sm text-center">
+              <h5>{{encounter.p1}} : {{encounter.p2}}</h5>
+            </div>
+            <div class="col-md">
+              <h5>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</h5>
+            </div>
+          </div>
+        {% endfor %}
         <br><br>
       {% endfor %}
       <br />
