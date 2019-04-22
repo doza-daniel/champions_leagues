@@ -13,7 +13,8 @@ from league.models import User, League, Group, Player, Match
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('home.html')
+    leagues = filter(lambda l: l.date_started, League.query.all())
+    return render_template('home.html', leagues=leagues)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -142,7 +143,6 @@ def sum_matches(league):
         key = key_match_pairs[0]
         match = key_match_pairs[1]
 
-        print(acc)
         p1ms, p2ms = get_meta_score(match)
         if not acc.get(key):
             acc[key] = {"matches":[match], "p1": p1ms, "p2": p2ms}
@@ -243,4 +243,53 @@ def finish_match(matches):
             return redirect(url_for('edit_leagues', league_id=match.league.id))
 
     return render_template('finish_match.html', title='Finish Match', forms=forms)
+
+
+@app.route("/leaderboards/<int:league_id>")
+def leaderboards(league_id):
+    league = League.query.get(league_id)
+    leaderboard = {p: {"goal_difference": 0, "total": 0} for p in league.players}
+
+    tournament = sum_matches(league)
+
+    for _, phase in tournament.items():
+        for _, encounters in phase.items():
+            for _, encounter in encounters.items():
+                p1 = encounter["matches"][0].player_one
+                p2 = encounter["matches"][0].player_two
+                scores = calculate_scores(encounter)
+                leaderboard[p1]["total"] += scores[0]["total"]
+                leaderboard[p1]["goal_difference"] += scores[0]["goal_difference"]
+                leaderboard[p2]["total"] += scores[1]["total"]
+                leaderboard[p2]["goal_difference"] += scores[1]["goal_difference"]
+
+
+    leaderboard_sorted = sorted(leaderboard.items(), reverse=True,
+            key=lambda item: item[1]["total"]*1000 + item[1]["goal_difference"])
+    return render_template('leaderboard.html', scores=leaderboard_sorted, league=league)
+
+
+def calculate_scores(encounter):
+    player_one_score = {"total": 0, "goal_difference": 0}
+    player_two_score = {"total": 0, "goal_difference": 0}
+    if encounter["done"]:
+        if encounter["p1"] > encounter["p2"]:
+            player_one_score["total"] = 3
+            player_two_score["total"] = 0
+
+        elif encounter["p2"] > encounter["p1"]:
+            player_two_score["total"] = 3
+            player_one_score["total"] = 0
+        else:
+            player_two_score["total"] = 1
+            player_one_score["total"] = 1
+
+            player_one_score["goal_difference"] = 0
+            player_two_score["goal_difference"] = 0
+
+    for match in encounter["matches"]:
+        player_one_score["goal_difference"] += match.player_one_score - match.player_two_score
+        player_two_score["goal_difference"] += match.player_two_score - match.player_one_score
+
+    return (player_one_score, player_two_score)
 
