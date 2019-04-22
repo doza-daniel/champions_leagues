@@ -12,14 +12,14 @@
   {% if title %}
     <title>{{ title }}</title>
   {% else %}
-    <title>Placeholder</title>
+    <title>Champions</title>
   {% endif %}
 </head>
 <body>
 <header class="site-header">
   <nav class="navbar navbar-expand-md navbar-dark bg-nav fixed-top">
     <div class="container">
-      <a class="navbar-brand mr-4" href="/">Placeholder</a>
+      <a class="navbar-brand mr-4" href="/">Champions</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -27,18 +27,29 @@
         <div class="navbar-nav mr-auto">
           <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
         </div>
-        <!-- Navbar Right Side -->
-        <div class="navbar-nav">
+        <ul class="navbar-nav">
           {% if current_user.is_authenticated %}
-            <a type="button" class="btn btn-light lr-margin" href="{{ url_for('list_leagues') }}">Moje lige</a>
-            <a type="button" class="btn btn-light lr-margin" href="{{ url_for('register_player') }}">Registruj Igraca</a>
-            <a type="button" class="btn btn-light lr-margin" href="{{ url_for('create_league') }}">Nova Liga</a>
-            <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Settings
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="{{ url_for('list_leagues') }}">Moje lige</a>
+                <a class="dropdown-item" href="{{ url_for('register_player') }}">Registruj Igraca</a>
+                <a class="dropdown-item" href="{{ url_for('create_league') }}">Nova Liga</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+              </div>
+            </li>
           {% else %}
-            <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
-            <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+              </li>
           {% endif %}
-        </div>
+        </ul>
       </div>
     </div>
   </nav>
