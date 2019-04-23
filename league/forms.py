@@ -53,7 +53,7 @@ class StartLeagueForm(FlaskForm):
                                     validators=[DataRequired()])
 
     def validate_group_size(self, field):
-        if field.data * field.data <= len(self.league.players):
+        if field.data * field.data < len(self.league.players):
             raise ValidationError(f'Group size must be greater than {ceil(sqrt(len(self.league.players)))}')
 
     start = SubmitField('Start league')
