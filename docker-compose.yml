@@ -11,13 +11,12 @@ services:
 
   database:
     image: mariadb
-    environment:
-        MYSQL_ROOT_PASSWORD: 'boot'
-        MYSQL_DATABASE: "leagues"
-        MYSQL_USER: "dummy"
-        MYSQL_PASSWORD: "user"
+    env_file:
+        - ./production_database.env
     restart: on-failure
+    ports:
+        - "3306:3306"
     volumes:
-        - ${PWD}/mariadb:/var/lib/mysql
+        - /var/champions/mariadb:/var/lib/mysql
 
 
