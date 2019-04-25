@@ -36,5 +36,12 @@
         {{ form.submit(class="btn btn-outline-info") }}
       </div>
     </form>
+    <hr>
+    <h3> Registered players: </h3>
+    <ol class="">
+      {% for player in players %}
+        <li class=""> {{ player.name + " " + player.last_name }} </li>
+      {% endfor %}
+    </ol>
   </div>
 {% endblock content %}

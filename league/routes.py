@@ -215,6 +215,7 @@ def generate_league_matches(league, gsize, num_phases):
 @app.route("/register_player", methods=['GET', 'POST'])
 @login_required
 def register_player():
+    players = Player.query.all()
     form = RegisterPlayerForm()
     if form.validate_on_submit():
         p = Player(name=form.name.data, last_name=form.last_name.data)
@@ -223,7 +224,8 @@ def register_player():
         flash(f"Player has been registered successfully!", 'success')
         return redirect(url_for('register_player'))
 
-    return render_template('register_player.html', title='Register Player', form=form)
+    return render_template('register_player.html', title='Register Player',
+                           form=form, players=players)
 
 
 @app.route("/finish_match/<string:matches>", methods=['GET', 'POST'])
