@@ -4,6 +4,9 @@ services:
     build: .
     volumes:
         - ${PWD}:/code
+        - /var/champions:/var/champions
+    environment:
+        PRODUCTION_CONFIG: /var/champions/config.py
     ports:
      - "80:80"
     depends_on:
@@ -12,11 +15,12 @@ services:
   database:
     image: mariadb
     env_file:
-        - ./production_database.env
+        - /var/champions/database.env
     restart: on-failure
     ports:
         - "3306:3306"
     volumes:
         - /var/champions/mariadb:/var/lib/mysql
+        - /var/champions:/var/champions
 
 
