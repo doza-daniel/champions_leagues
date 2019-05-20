@@ -20,4 +20,4 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-from league import routes
+from champions_leagues import routes

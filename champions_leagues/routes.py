@@ -6,9 +6,9 @@ from functools import reduce
 from datetime import datetime
 from hashlib import sha1
 
-from league import app, db, bcrypt
-from league.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm, generate_edit_match_form
-from league.models import User, League, Group, Player, Match
+from champions_leagues import app, db, bcrypt
+from champions_leagues.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm, generate_edit_match_form
+from champions_leagues.models import User, League, Group, Player, Match
 
 @app.route("/")
 @app.route("/home")

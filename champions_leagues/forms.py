@@ -5,7 +5,7 @@ from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, EqualTo
 from datetime import date
 from math import ceil, sqrt
-from league.models import User
+from champions_leagues.models import User
 
 
 class RegistrationForm(FlaskForm):

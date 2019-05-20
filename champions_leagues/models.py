@@ -1,5 +1,5 @@
 from datetime import datetime
-from league import db, login_manager
+from champions_leagues import db, login_manager
 from flask_login import UserMixin
 
 @login_manager.user_loader
