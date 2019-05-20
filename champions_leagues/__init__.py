@@ -21,3 +21,6 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
 from champions_leagues import routes
+from champions_leagues.views.leagues import leagues
+
+app.register_blueprint(leagues)
