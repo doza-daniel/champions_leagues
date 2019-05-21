@@ -13,14 +13,14 @@ def list_leagues():
     leagues = filter(lambda l: l.date_started, models.League.query.all())
     return flask.render_template('leagues/list.html', leagues=leagues)
 
-@leagues.route("/<id>")
-def phases(id):
+@leagues.route("/<id>/matches")
+def matches(id):
     active_phase = flask.request.args.get('phase')
     active_phase = 0 if active_phase is None else active_phase
 
     league = League(id)
     return flask.render_template(
-        'leagues/phases.html',
+        'leagues/matches.html',
         league=league,
         active_phase=active_phase
     )
