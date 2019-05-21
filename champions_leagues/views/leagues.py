@@ -33,6 +33,12 @@ def groups(id):
     league = League(id)
     return flask.render_template('leagues/groups.html', league=league, active_phase=active_phase)
 
+@leagues.route("/<id>/leaderboard")
+def leaderboard(id):
+    league = League(id)
+    temporary_scores = {p.name + " " + p.last_name: 0 for p in league.model.players}
+    return flask.render_template('leagues/leaderboard.html', scores=temporary_scores, league=league)
+
 @leagues.route("/<id>/match/<match_id>")
 def match(id, match_id):
     return flask.redirect(flask.url_for('leagues.phases', id=id))

@@ -1,0 +1,21 @@
+{% extends "leagues/preview_layout.html" %}
+{% block league_preview_content %}
+  <table class="table table-hover">
+    <thead>
+      <th>
+        Player
+      </th>
+      <th>
+        Score
+      </th>
+    </thead>
+    <tbody>
+      {% for player, score in scores.items() %}
+        <tr>
+          <td>{{player}}</td>
+          <td>{{score}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock league_preview_content %}
