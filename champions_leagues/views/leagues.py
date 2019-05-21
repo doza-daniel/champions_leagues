@@ -39,8 +39,8 @@ def encounter(id):
     encounter_id = flask.request.args.get('encounter_id')
 
     owner = None
-    if flask_login.current_user.is_authenticated and flask_login.current_user == league.league.owner:
-        owner = league.league.owner
+    if flask_login.current_user.is_authenticated and flask_login.current_user == league.model.owner:
+        owner = league.model.owner
 
     return flask.render_template(
         'leagues/encounter.html',
@@ -51,7 +51,7 @@ def encounter(id):
 
 class League():
     def __init__(self, id):
-        self.league = models.League.query.get(id)
+        self.model = models.League.query.get(id)
 
         def calc_encounter_score(match):
             p1 = 1 if match.player_one_score > match.player_two_score else 0
@@ -64,7 +64,7 @@ class League():
         self.phases = {}
 
         by_phase = lambda match: match.group.phase
-        for phase_num, matches in groupby(sorted(self.league.matches, key=by_phase), by_phase):
+        for phase_num, matches in groupby(sorted(self.model.matches, key=by_phase), by_phase):
             self.phases[phase_num] = {}
             self.phases[phase_num]['groups'] = {}
 
