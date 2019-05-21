@@ -25,11 +25,13 @@
     {% endif %}
 
     {% for group_id, obj in phase.groups.items() %}
+      <hr>
       <div class="row text-xl-center group-head">
         <div class="col-xl">
           <h2>Group {{ loop.index }}</h2>
         </div>
       </div>
+      <hr>
       {% for player in obj.group.players %}
         <div class="row group-row">
           <div class="col-md text-center">
