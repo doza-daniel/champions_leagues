@@ -31,12 +31,11 @@
         </div>
       </div>
       {% for encounter_id, encounter in obj.encounters.items() %}
-        {% if not encounter.done %}
-          {% set hoverable="group-row-hoverable" %}
-          {% set clickable="clickable-row" %}
-          {% set finish_href="data-href=" + url_for('finish_match', matches=encounter_id) %}
-        {% endif %}
-        <div class="row {{clickable}} {{hoverable}} group-row" {{finish_href}}>
+        {% set hoverable="group-row-hoverable" %}
+        {% set clickable="clickable-row" %}
+        {% set finish_href="data-href=" + url_for('leagues.encounter', id=league.league.id, phase_num=active_phase, group_id=group_id, encounter_id=encounter_id) %}
+        <div class="row clickable-row group-row-hoverable group-row"
+          data-href="{{url_for('leagues.encounter', id=league.league.id, phase_num=active_phase, group_id=group_id, encounter_id=encounter_id)}}">
           <div class="col-md">
             <h5>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</h5>
           </div>

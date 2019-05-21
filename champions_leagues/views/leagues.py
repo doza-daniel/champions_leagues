@@ -1,4 +1,5 @@
 import flask
+import flask_login
 from functools import reduce
 from itertools import groupby, dropwhile
 from hashlib import sha1
@@ -15,6 +16,8 @@ def list_leagues():
 @leagues.route("/<id>")
 def phases(id):
     active_phase = flask.request.args.get('phase')
+    active_phase = 0 if active_phase is None else active_phase
+
     league = League(id)
     return flask.render_template(
         'leagues/phases.html',
@@ -22,6 +25,29 @@ def phases(id):
         active_phase=active_phase
     )
 
+@leagues.route("/<id>/match/<match_id>")
+def match(id, match_id):
+    return flask.redirect(flask.url_for('leagues.phases', id=id))
+
+
+@leagues.route("/<id>/encounter")
+def encounter(id):
+    league = League(id)
+
+    phase_num = int(flask.request.args.get('phase_num'))
+    group_id = int(flask.request.args.get('group_id'))
+    encounter_id = flask.request.args.get('encounter_id')
+
+    owner = None
+    if flask_login.current_user.is_authenticated and flask_login.current_user == league.league.owner:
+        owner = league.league.owner
+
+    return flask.render_template(
+        'leagues/encounter.html',
+        encounter=league.encounter(phase_num, group_id, encounter_id),
+        league=league,
+        owner=owner
+    )
 
 class League():
     def __init__(self, id):
@@ -56,6 +82,9 @@ class League():
                         'p2': scores[1],
                         'done': all(map(lambda x: x.played_on, matches)),
                     }
+
+    def encounter(self, phase_num, group_id, encounter_id):
+        return self.phases[phase_num]['groups'][group_id]['encounters'][encounter_id]
 
     def encounter_key(self, match):
         return '-'.join([str(match.player_one.id), str(match.player_two.id)])

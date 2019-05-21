@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+
+
+  <div class="row {{clickable}} {{hoverable}} group-row" {{finish_href}}>
+    <div class="col-sm text-center">
+      <h2>{{encounter.p1}} : {{encounter.p2}}</h2>
+    </div>
+  </div>
+  <hr>
+  {% for match in encounter.matches %}
+    {% if not match.played_on and owner %}
+      {% set hoverable="group-row-hoverable" %}
+      {% set clickable="clickable-row" %}
+      {% set finish_href="data-href=" + url_for('leagues.match', id=league.league.id, match_id=match.id) %}
+    {% endif %}
+    <div class="row text-xl-center group-head">
+      <div class="col-xl">
+        <h2>Match {{ loop.index }}</h2>
+      </div>
+    </div>
+    <div class="row {{clickable}} {{hoverable}} group-row" {{finish_href}}>
+      <div class="col-md">
+        <h5>{{match.player_one.name + " " + match.player_one.last_name}}</h5>
+      </div>
+      <div class="col-sm text-center">
+        <h5>{{match.player_one_score}} : {{match.player_two_score}}</h5>
+      </div>
+      <div class="col-md">
+        <h5>{{match.player_two.name + " " + match.player_two.last_name}}</h5>
+      </div>
+    </div>
+    <hr>
+  {% endfor %}
+
+{% endblock content %}
