@@ -1,6 +1,7 @@
 import flask
 from functools import reduce
-from itertools import groupby
+from itertools import groupby, dropwhile
+from hashlib import sha1
 
 import champions_leagues.models as models
 
@@ -10,6 +11,16 @@ leagues = flask.Blueprint('leagues', __name__, url_prefix='/leagues')
 def list_leagues():
     leagues = filter(lambda l: l.date_started, models.League.query.all())
     return flask.render_template('leagues/list.html', leagues=leagues)
+
+@leagues.route("/<id>")
+def phases(id):
+    active_phase = flask.request.args.get('phase')
+    league = League(id)
+    return flask.render_template(
+        'leagues/phases.html',
+        league=league,
+        active_phase=active_phase
+    )
 
 
 class League():
@@ -29,26 +40,28 @@ class League():
         by_phase = lambda match: match.group.phase
         for phase_num, matches in groupby(sorted(self.league.matches, key=by_phase), by_phase):
             self.phases[phase_num] = {}
-            self.phases[phase_num]['encounters'] = {}
+            self.phases[phase_num]['groups'] = {}
 
-            by_phase_num = lambda group: group.phase == phase_num
-            self.phases[phase_num]['groups'] = list(filter(by_phase_num, models.Group.query.all()))
+            by_group_id = lambda match: match.group.id
+            for group_id, matches in groupby(sorted(matches, key=by_group_id), by_group_id):
+                self.phases[phase_num]['groups'][group_id] = {'group': models.Group.query.get(group_id), 'encounters': {}}
 
-            gen_key = lambda match: '-'.join([str(match.player_one.id), str(match.player_two.id)])
-            for encounterID, matches in groupby(sorted(matches, key=gen_key), gen_key):
-                matches = list(matches)
+                for encounter_id, matches in groupby(sorted(matches, key=self.encounter_key), self.encounter_key):
+                    matches = list(matches)
 
-                scores = reduce(lambda scores, match: pair_add(scores, calc_encounter_score(match)), matches, (0, 0))
-                self.phases[phase_num]['encounters'][encounterID] = {
-                    'matches': matches,
-                    'p1': scores[0],
-                    'p2': scores[1],
-                    'done': all(map(lambda x: x.played_on, matches))
-                }
+                    scores = reduce(lambda scores, match: pair_add(scores, calc_encounter_score(match)), matches, (0, 0))
+                    self.phases[phase_num]['groups'][group_id]['encounters'][encounter_id] = {
+                        'matches': matches,
+                        'p1': scores[0],
+                        'p2': scores[1],
+                        'done': all(map(lambda x: x.played_on, matches)),
+                    }
+
+    def encounter_key(self, match):
+        return '-'.join([str(match.player_one.id), str(match.player_two.id)])
 
     def current_phase(self):
         for key in sorted(self.phases.keys()):
             if not all(map(lambda e: e[1]['done'], self.phases[key]['encounters'].items())):
                 return key
         return None
-

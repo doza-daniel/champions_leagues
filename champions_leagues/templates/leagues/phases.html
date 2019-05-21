@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content-section">
+    <ul class="nav nav-tabs">
+      {% for phase_num, phase in league.phases.items() %}
+        {% set color = "gray" %}
+        {% if phase_num == active_phase|int %}
+          {% set color = "black" %}
+          {% set active = "active" %}
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link {{active}}"
+            style="color: {{color}}"
+            href="{{url_for('leagues.phases', id=league.league.id, phase=phase_num)}}">
+            Faza {{ phase_num + 1 }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if active_phase %}
+      {% set phase = league.phases[active_phase|int] %}
+    {% else %}
+      {% set phase = league.phases[0] %}
+    {% endif %}
+
+    {% for group_id, obj in phase.groups.items() %}
+      <div class="row text-xl-center group-head">
+        <div class="col-xl">
+          <h2>Group {{ loop.index }}</h2>
+        </div>
+      </div>
+      {% for encounter_id, encounter in obj.encounters.items() %}
+        {% if not encounter.done %}
+          {% set hoverable="group-row-hoverable" %}
+          {% set clickable="clickable-row" %}
+          {% set finish_href="data-href=" + url_for('finish_match', matches=encounter_id) %}
+        {% endif %}
+        <div class="row {{clickable}} {{hoverable}} group-row" {{finish_href}}>
+          <div class="col-md">
+            <h5>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</h5>
+          </div>
+          <div class="col-sm text-center">
+            <h5>{{encounter.p1}} : {{encounter.p2}}</h5>
+          </div>
+          <div class="col-md">
+            <h5>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</h5>
+          </div>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+{% endblock content %}

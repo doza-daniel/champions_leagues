@@ -13,7 +13,7 @@ from champions_leagues.models import User, League, Group, Player, Match
 @app.route("/")
 @app.route("/home")
 def home():
-    return redirect(url_for('leagues.list'))
+    return redirect(url_for('leagues.list_leagues'))
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
