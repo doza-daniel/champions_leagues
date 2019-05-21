@@ -25,6 +25,14 @@ def matches(id):
         active_phase=active_phase
     )
 
+@leagues.route("/<id>/groups")
+def groups(id):
+    active_phase = flask.request.args.get('phase')
+    active_phase = 0 if active_phase is None else active_phase
+
+    league = League(id)
+    return flask.render_template('leagues/groups.html', league=league, active_phase=active_phase)
+
 @leagues.route("/<id>/match/<match_id>")
 def match(id, match_id):
     return flask.redirect(flask.url_for('leagues.phases', id=id))
