@@ -1,5 +1,5 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "leagues/preview_layout.html" %}
+{% block league_preview_content %}
   <div class="content-section">
     <ul class="nav nav-tabs">
       {% for phase_num, phase in league.phases.items() %}
@@ -49,4 +49,4 @@
       {% endfor %}
     {% endfor %}
   </div>
-{% endblock content %}
+{% endblock league_preview_content %}

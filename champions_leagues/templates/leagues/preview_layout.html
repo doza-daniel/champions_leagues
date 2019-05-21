@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Groups</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Matches</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Leaderboard</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  {% block league_preview_content %}{% endblock %}
+{% endblock content %}
