@@ -50,8 +50,7 @@ def start(id):
         flask.flash(f"League has been started successfully!", 'success')
         league.date_started = start_form.date_started.data
         generate_league_matches(league,
-                start_form.group_size.data,
-                start_form.number_of_phases.data)
+                start_form.group_size.data)
         db.session.commit()
         return flask.redirect(flask.url_for('leagues.phases', id=id))
 
@@ -222,7 +221,7 @@ class League():
 
         return leaderboard_sorted
 
-def generate_league_matches(league, gsize, num_phases):
+def generate_league_matches(league, gsize, num_phases=3):
     nplayers = len(league.players)
     ngroups = gsize
     groups=[]
@@ -240,7 +239,7 @@ def generate_league_matches(league, gsize, num_phases):
             db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
             db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
 
-    for phase in range(1,3):
+    for phase in range(1, num_phases):
         ng = [models.Group(league=league, size=gsize, phase=phase) for k in range(ngroups)]
 
         for i, group in enumerate(ng):

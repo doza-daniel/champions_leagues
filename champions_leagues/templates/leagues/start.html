@@ -74,19 +74,6 @@
               {{ start_form.group_size(class="date form-control form-control-lg") }}
             {% endif %}
           </div>
-          <div class="form-group">
-            {{ start_form.number_of_phases.label(class="form-control-label") }}
-            {% if start_form.number_of_phases.errors %}
-              {{ start_form.number_of_phases(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                {% for error in start_form.number_of_phases.errors %}
-                  <span>{{ error }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ start_form.number_of_phases(class="date form-control form-control-lg") }}
-            {% endif %}
-          </div>
         </fieldset>
         <div class="form-group">
           {{ start_form.start(class="btn btn-outline-info") }}
