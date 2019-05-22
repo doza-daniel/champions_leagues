@@ -15,8 +15,14 @@
     </thead>
     <tbody>
       {% for league in leagues %}
-        <tr class="clickable-row" data-href="{{url_for('leagues.phases', id=league.id)}}">
-          <td>{{league.date_started.strftime('%Y-%m-%d')}}</td>
+      <tr class="clickable-row"
+      data-href="{% if league.date_started %}
+          {{url_for('leagues.phases', id=league.id)}}
+        {% else %}
+          {{url_for('leagues.start', id=league.id)}}
+        {% endif %}
+        ">
+          <td>{% if league.date_started %} {{league.date_started.strftime('%Y-%m-%d')}} {% endif %}</td>
           <td>{{league.owner.username}}</td>
           <td>{{league.name}}</td>
         </tr>

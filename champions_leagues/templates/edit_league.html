@@ -1,77 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="content-section">
-    {% if league.date_started %}
-      <ul class="nav nav-tabs">
-        {% for i, phase in phases.items() %}
-          <li class="nav-item">
-            {% if phase_num|int == i or (i == 0 and not phase_num) %}
-              <a class="nav-link active" style="color: black" href="{{url_for('edit_leagues', league_id=league.id, phase=i)}}"> Faza {{ i + 1 }} </a>
-            {% else %}
-              <a class="nav-link" style="color: gray" href="{{url_for('edit_leagues', league_id=league.id, phase=i)}}"> Faza {{ i + 1 }} </a>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-      {% if phase_num %}
-        {% set groups = phases[phase_num|int] %}
-      {% else %}
-        {% set groups = phases[0] %}
-      {% endif %}
-      {% for k, group in groups.items() %}
-        <div class="row text-xl-center group-head">
-          <div class="col-xl">
-            <h2>Group {{ loop.index }}</h2>
-          </div>
-        </div>
-        <hr />
-        {% for key, encounter in group.items() %}
-          {% if not encounter.done %}
-            {% set hoverable="group-row-hoverable" %}
-            {% set clickable="clickable-row" %}
-            {% set finish_href="data-href=" + url_for('finish_match', matches=encounter.id) %}
-          {% endif %}
-          <div class="row {{clickable}} {{hoverable}} group-row" {{finish_href}}>
-            <div class="col-md">
-              <h5>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</h5>
-            </div>
-            <div class="col-sm text-center">
-              <h5>{{encounter.p1}} : {{encounter.p2}}</h5>
-            </div>
-            <div class="col-md">
-              <h5>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</h5>
-            </div>
-          </div>
-        {% endfor %}
-        <br><br>
-      {% endfor %}
-      <br />
-      <br />
-      {% if end_form %}
-        <form method="POST" action="">
-          {{ end_form.hidden_tag() }}
-          <fieldset class="form-group">
-            <legend class="border-bottom mb-4">End League</legend>
-            <div class="form-group">
-              {{ end_form.date_ended.label(class="form-control-label") }}
-              {% if end_form.date_ended.errors %}
-                {{ end_form.date_ended(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                  {% for error in end_form.date_ended.errors %}
-                    <span>{{ error }}</span>
-                  {% endfor %}
-                </div>
-              {% else %}
-                {{ end_form.date_ended(class="date form-control form-control-lg") }}
-              {% endif %}
-            </div>
-          </fieldset>
-          <div class="form-group">
-            {{ end_form.end(class="btn btn-outline-info") }}
-          </div>
-        </form>
-      {% endif %}
-    {% else %}
       <form method="POST" action="">
         {{ add_form.hidden_tag() }}
         <fieldset class="form-group">
@@ -112,7 +41,7 @@
         </fieldset>
         <div class="form-group">
           {{ remove_form.remove(class="btn btn-danger") }}
-          <span style="float: right">Number of Players: {{ nplayers }}</span>
+          <span style="float: right">Number of Players: {{ remove_form.players_to_remove.choices|length }}</span>
         </div>
       </form>
       <form method="POST" action="">
@@ -163,6 +92,5 @@
           {{ start_form.start(class="btn btn-outline-info") }}
         </div>
       </form>
-    {% endif %}
   </div>
 {% endblock content %}

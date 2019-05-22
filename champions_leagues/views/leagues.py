@@ -1,7 +1,7 @@
 import flask
 import flask_login
 from functools import reduce
-from itertools import groupby
+from itertools import groupby, combinations
 from hashlib import sha1
 
 import champions_leagues.models as models
@@ -17,7 +17,7 @@ def list_leagues():
     if flask_login.current_user.is_authenticated and owned:
         leagues = models.League.query.filter_by(owner=flask_login.current_user)
     else:
-        leagues = models.League.query.filter(models.League.date_started is not None)
+        leagues = models.League.query.filter(models.League.date_started != None)
     return flask.render_template('leagues/list.html', leagues=leagues)
 
 @leagues.route("/<id>/phases/", defaults={'phase_num':0})
@@ -35,12 +35,64 @@ def phases(id, phase_num=0):
         league=league
     )
 
+@leagues.route("/<id>/start", methods=['GET', 'POST'])
+@flask_login.login_required
+def start(id):
+    league = models.League.query.get(id)
+    _to_add = models.Player.query.filter(~models.Player.id.in_([p.id for p in league.players])).all()
+    to_remove = [(p.id, p.name + " " + p.last_name) for p in league.players]
+    to_add = [(p.id, p.name + " " + p.last_name) for p in _to_add]
+
+    start_form = forms.StartLeagueForm(league)
+    remove_form = forms.RemovePlayerForm(to_remove)
+    add_form = forms.AddPlayerForm(to_add)
+
+    if start_form.start.data and start_form.validate():
+        flask.flash(f"League has been started successfully!", 'success')
+        league.date_started = start_form.date_started.data
+        generate_league_matches(league,
+                start_form.group_size.data,
+                start_form.number_of_phases.data)
+        db.session.commit()
+        return flask.redirect(flask.url_for('leagues.phases', id=id))
+
+    if add_form.add.data and add_form.validate():
+        for pID in add_form.players_to_add.data:
+            league.players.append(models.Player.query.get(pID))
+        db.session.commit()
+        return flask.redirect(flask.url_for('leagues.start', id=id))
+
+    if remove_form.remove.data and remove_form.validate():
+        league.players = [p for p in league.players if p.id not in remove_form.players_to_remove.data]
+        db.session.commit()
+        return flask.redirect(flask.url_for('leagues.start', id=id))
+
+    return flask.render_template(
+        'edit_league.html',
+        title='Start League',
+        start_form=start_form,
+        remove_form=remove_form,
+        add_form=add_form,
+    )
 
 @leagues.route("/<id>/leaderboard")
 def leaderboard(id):
     league = League(id)
     temporary_scores = {p.name + " " + p.last_name: 0 for p in league.model.players}
     return flask.render_template('leagues/leaderboard.html', scores=league.leaderboard(), league=league)
+
+@leagues.route("/create", methods=['GET', 'POST'])
+@flask_login.login_required
+def create():
+    form = forms.CreateLeagueForm()
+    if form.validate_on_submit():
+        league = models.League(owner=flask_login.current_user, name=form.name.data)
+        db.session.add(league)
+        db.session.commit()
+        flask.flash(f"League '{league.name}' has been created successfully!", 'success')
+        return flask.redirect(flask.url_for('leagues.start', id=league.id))
+
+    return flask.render_template('leagues/create.html', title='Create League', form=form)
 
 @leagues.route("/<int:id>/match/<int:match_id>", methods=['GET', 'POST'])
 @flask_login.login_required
@@ -171,4 +223,37 @@ class League():
 
         return leaderboard_sorted
 
+def generate_league_matches(league, gsize, num_phases):
+    nplayers = len(league.players)
+    ngroups = gsize
+    groups=[]
+    for i in range(ngroups):
+        group = models.Group(league=league, size=gsize, phase=0)
+        groups.append(group)
+        db.session.add(group)
 
+    for i in range(nplayers):
+        groups[i % ngroups].players.append(league.players[i])
+
+    matches = []
+    for group in groups:
+        for p1, p2 in combinations(group.players, 2):
+            db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
+            db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
+
+    for phase in range(1,3):
+        ng = [models.Group(league=league, size=gsize, phase=phase) for k in range(ngroups)]
+
+        for i, group in enumerate(ng):
+            for j in range(gsize):
+                if len(groups[j % gsize].players) > (j * (phase - 1) + i) % gsize:
+                    group.players.append(groups[j % gsize].players[(j * (phase - 1) + i) % gsize])
+
+        for group in ng:
+            db.session.add(group)
+            for p1, p2 in combinations(group.players, 2):
+                db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
+                db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
+
+
+    db.session.commit()
