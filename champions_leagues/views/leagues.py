@@ -39,7 +39,7 @@ def groups(id):
 def leaderboard(id):
     league = League(id)
     temporary_scores = {p.name + " " + p.last_name: 0 for p in league.model.players}
-    return flask.render_template('leagues/leaderboard.html', scores=temporary_scores, league=league)
+    return flask.render_template('leagues/leaderboard.html', scores=league.leaderboard(), league=league)
 
 @leagues.route("/<int:id>/match/<int:match_id>", methods=['GET', 'POST'])
 def match(id, match_id):
@@ -126,3 +126,46 @@ class League():
             if not all(map(lambda e: e[1]['done'], self.phases[key]['encounters'].items())):
                 return key
         return None
+    def calculate_scores(self, encounter):
+        player_one_score = {"total": 0, "goal_difference": 0}
+        player_two_score = {"total": 0, "goal_difference": 0}
+        if encounter["done"]:
+            if encounter["p1"] > encounter["p2"]:
+                player_one_score["total"] = 3
+                player_two_score["total"] = 0
+
+            elif encounter["p2"] > encounter["p1"]:
+                player_two_score["total"] = 3
+                player_one_score["total"] = 0
+            else:
+                player_two_score["total"] = 1
+                player_one_score["total"] = 1
+
+                player_one_score["goal_difference"] = 0
+                player_two_score["goal_difference"] = 0
+
+        for match in encounter["matches"]:
+            player_one_score["goal_difference"] += match.player_one_score - match.player_two_score
+            player_two_score["goal_difference"] += match.player_two_score - match.player_one_score
+
+        return (player_one_score, player_two_score)
+
+    def leaderboard(self):
+        leaderboard = {p: {"goal_difference": 0, "total": 0} for p in self.model.players}
+        for _, phase in self.phases.items():
+            for _, group in phase['groups'].items():
+                for _, encounter in group['encounters'].items():
+                    p1 = encounter['matches'][0].player_one
+                    p2 = encounter['matches'][0].player_two
+                    scores = self.calculate_scores(encounter)
+                    leaderboard[p1]["total"] += scores[0]["total"]
+                    leaderboard[p1]["goal_difference"] += scores[0]["goal_difference"]
+                    leaderboard[p2]["total"] += scores[1]["total"]
+                    leaderboard[p2]["goal_difference"] += scores[1]["goal_difference"]
+
+        leaderboard_sorted = sorted(leaderboard.items(), reverse=True,
+                key=lambda item: item[1]["total"]*1000 + item[1]["goal_difference"])
+
+        return leaderboard_sorted
+
+

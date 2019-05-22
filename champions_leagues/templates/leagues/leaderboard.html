@@ -11,10 +11,10 @@
       </th>
     </thead>
     <tbody>
-      {% for player, score in scores.items() %}
+      {% for player, score in scores %}
         <tr>
-          <td>{{player}}</td>
-          <td>{{score}}</td>
+          <td>{{ player.name + " " + player.last_name }}</td>
+          <td>{{ score.total }}</td>
         </tr>
       {% endfor %}
     </tbody>
