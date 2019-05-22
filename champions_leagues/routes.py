@@ -1,13 +1,8 @@
 from flask import render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
-from math import ceil
-from itertools import combinations
-from functools import reduce
-from datetime import datetime
-from hashlib import sha1
 
 from champions_leagues import app, db, bcrypt
-from champions_leagues.forms import RegistrationForm, LoginForm, CreateLeagueForm, RegisterPlayerForm, StartLeagueForm, RemovePlayerForm, AddPlayerForm, EndLeagueForm, generate_edit_match_form
+from champions_leagues.forms import RegistrationForm, LoginForm,  RegisterPlayerForm
 from champions_leagues.models import User, League, Group, Player, Match
 
 @app.route("/favicon.ico")

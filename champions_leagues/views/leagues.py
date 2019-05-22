@@ -2,7 +2,6 @@ import flask
 import flask_login
 from functools import reduce
 from itertools import groupby, combinations
-from hashlib import sha1
 
 import champions_leagues.models as models
 import champions_leagues.forms as forms
