@@ -1,53 +1,33 @@
-{% extends "leagues/preview_layout.html" %}
+{% extends "leagues/phase_layout.html" %}
 {% set active_page = "matches" %}
-{% block league_preview_content %}
-  <div class="content-section">
-    <ul class="nav nav-tabs">
-      {% for phase_num, phase in league.phases.items() %}
-        {% set color = "gray" %}
-        {% if phase_num == active_phase|int %}
-          {% set color = "black" %}
-          {% set active = "active" %}
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link {{active}}"
-            style="color: {{color}}"
-            href="{{url_for('leagues.matches', id=league.model.id, phase=phase_num)}}">
-            Faza {{ phase_num + 1 }}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-
-    {% if active_phase %}
-      {% set phase = league.phases[active_phase|int] %}
-    {% else %}
-      {% set phase = league.phases[0] %}
-    {% endif %}
-
-    {% for group_id, obj in phase.groups.items() %}
-      <div class="row text-xl-center group-head">
-        <div class="col-xl">
-          <h2>Group {{ loop.index }}</h2>
+{% block phase_content %}
+  {% for group_id, obj in current_phase.groups.items() %}
+    <div class="row text-xl-center group-head">
+      <div class="col-xl">
+        <h2>Group {{ loop.index }}</h2>
+      </div>
+    </div>
+    {% for encounter_id, encounter in obj.encounters.items() %}
+      {% set finish_match= url_for(
+          'leagues.encounter',
+          id=league.model.id,
+          phase_num=current_phase_num|int,
+          group_id=group_id,
+          encounter_id=encounter_id
+        )
+      %}
+      <div class="row clickable-row group-row-hoverable group-row"
+           data-href="{{ finish_match }}">
+        <div class="col-md">
+          <h5>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</h5>
+        </div>
+        <div class="col-sm text-center">
+          <h5>{{encounter.p1}} : {{encounter.p2}}</h5>
+        </div>
+        <div class="col-md">
+          <h5>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</h5>
         </div>
       </div>
-      {% for encounter_id, encounter in obj.encounters.items() %}
-        {% set hoverable="group-row-hoverable" %}
-        {% set clickable="clickable-row" %}
-        {% set finish_href="data-href=" + url_for('leagues.encounter', id=league.model.id, phase_num=active_phase, group_id=group_id, encounter_id=encounter_id) %}
-        <div class="row clickable-row group-row-hoverable group-row"
-          data-href="{{url_for('leagues.encounter', id=league.model.id, phase_num=active_phase, group_id=group_id, encounter_id=encounter_id)}}">
-          <div class="col-md">
-            <h5>{{encounter.matches[0].player_one.name + " " + encounter.matches[0].player_one.last_name}}</h5>
-          </div>
-          <div class="col-sm text-center">
-            <h5>{{encounter.p1}} : {{encounter.p2}}</h5>
-          </div>
-          <div class="col-md">
-            <h5>{{encounter.matches[0].player_two.name + " " + encounter.matches[0].player_two.last_name}}</h5>
-          </div>
-        </div>
-      {% endfor %}
     {% endfor %}
-  </div>
-{% endblock league_preview_content %}
+  {% endfor %}
+{% endblock phase_content %}

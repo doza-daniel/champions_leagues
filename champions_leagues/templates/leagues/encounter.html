@@ -34,7 +34,7 @@
   {% endfor %}
   <a type="button"
      class="btn btn-default text-center"
-     href="{{url_for('leagues.matches', id=league.model.id)}}">
+     href="{{url_for('leagues.phases', id=league.model.id, page='matches')}}">
     Back to matches
   </a>
 

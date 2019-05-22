@@ -1,45 +1,20 @@
-{% extends "leagues/preview_layout.html" %}
+{% extends "leagues/phase_layout.html" %}
 {% set active_page = "groups" %}
-{% block league_preview_content %}
-  <div class="content-section">
-    <ul class="nav nav-tabs">
-      {% for phase_num, phase in league.phases.items() %}
-        {% set color = "gray" %}
-        {% if phase_num == active_phase|int %}
-          {% set color = "black" %}
-          {% set active = "active" %}
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link {{active}}"
-            style="color: {{color}}"
-            href="{{url_for('leagues.groups', id=league.model.id, phase=phase_num)}}">
-            Faza {{ phase_num + 1 }}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-
-    {% if active_phase %}
-      {% set phase = league.phases[active_phase|int] %}
-    {% else %}
-      {% set phase = league.phases[0] %}
-    {% endif %}
-
-    {% for group_id, obj in phase.groups.items() %}
-      <hr>
-      <div class="row text-xl-center group-head">
-        <div class="col-xl">
-          <h2>Group {{ loop.index }}</h2>
+{% block phase_content %}
+  {% for group_id, obj in current_phase.groups.items() %}
+    <hr>
+    <div class="row text-xl-center group-head">
+      <div class="col-xl">
+        <h2>Group {{ loop.index }}</h2>
+      </div>
+    </div>
+    <hr>
+    {% for player in obj.group.players %}
+      <div class="row group-row">
+        <div class="col-md text-center">
+          <h5>{{player.name + " " + player.last_name}}</h5>
         </div>
       </div>
-      <hr>
-      {% for player in obj.group.players %}
-        <div class="row group-row">
-          <div class="col-md text-center">
-            <h5>{{player.name + " " + player.last_name}}</h5>
-          </div>
-        </div>
-      {% endfor %}
     {% endfor %}
-  </div>
-{% endblock league_preview_content %}
+  {% endfor %}
+{% endblock phase_content %}

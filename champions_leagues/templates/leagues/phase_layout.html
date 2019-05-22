@@ -1,0 +1,18 @@
+{% extends "leagues/preview_layout.html" %}
+{% set active_page = active_page or 'groups' %}
+{% block league_preview_content %}
+  <div class="content-section">
+    <ul class="nav nav-tabs">
+      {% for i in range(max_phases) %}
+        <li class="nav-item">
+          <a class="nav-link {% if i == current_phase_num|int %} active {% endif %}"
+             style="color: {% if i == current_phase_num|int %} black {% else %} gray {% endif %}"
+             href="{{url_for('leagues.phases', id=league.model.id, phase_num=i, page=active_page)}}">
+            Faza {{ i + 1 }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    {% block phase_content %}{% endblock %}
+  </div>
+{% endblock league_preview_content %}

@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
+  {% set current_phase_num = current_phase_num|default(0) %}
   {% set navigation_bar = [
-    (url_for('leagues.groups', id=league.model.id), 'groups', 'Groups'),
-    (url_for('leagues.matches', id=league.model.id), 'matches', 'Matches'),
+    (url_for('leagues.phases', id=league.model.id, phase_num=0, page='groups'), 'groups', 'Groups'),
+    (url_for('leagues.phases', id=league.model.id, phase_num=0, page='matches'), 'matches', 'Matches'),
     (url_for('leagues.leaderboard', id=league.model.id), 'leaderboard', 'Leaderboard')
   ] -%}
   <nav class="navbar navbar-expand-lg navbar-light bg-light">

@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       {% for league in leagues %}
-        <tr class="clickable-row" data-href="{{url_for('leagues.groups', id=league.id)}}">
+        <tr class="clickable-row" data-href="{{url_for('leagues.phases', id=league.id)}}">
           <td>{{league.date_started.strftime('%Y-%m-%d')}}</td>
           <td>{{league.owner.username}}</td>
           <td>{{league.name}}</td>

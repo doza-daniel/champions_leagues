@@ -15,25 +15,21 @@ def list_leagues():
     leagues = filter(lambda l: l.date_started, models.League.query.all())
     return flask.render_template('leagues/list.html', leagues=leagues)
 
-@leagues.route("/<id>/matches")
-def matches(id):
-    active_phase = flask.request.args.get('phase')
-    active_phase = 0 if active_phase is None else active_phase
-
+@leagues.route("/<id>/phases/", defaults={'phase_num':0})
+@leagues.route("/<id>/phases/<int:phase_num>")
+def phases(id, phase_num=0):
     league = League(id)
+    page = flask.request.args.get('page')
+    if page is None:
+        page = 'groups'
     return flask.render_template(
-        'leagues/matches.html',
-        league=league,
-        active_phase=active_phase
+        f'leagues/{page}.html',
+        current_phase=league.phases[phase_num],
+        current_phase_num=phase_num,
+        max_phases=3,
+        league=league
     )
 
-@leagues.route("/<id>/groups")
-def groups(id):
-    active_phase = flask.request.args.get('phase')
-    active_phase = 0 if active_phase is None else active_phase
-
-    league = League(id)
-    return flask.render_template('leagues/groups.html', league=league, active_phase=active_phase)
 
 @leagues.route("/<id>/leaderboard")
 def leaderboard(id):
@@ -42,9 +38,10 @@ def leaderboard(id):
     return flask.render_template('leagues/leaderboard.html', scores=league.leaderboard(), league=league)
 
 @leagues.route("/<int:id>/match/<int:match_id>", methods=['GET', 'POST'])
+@flask_login.login_required
 def match(id, match_id):
     match = models.Match.query.get(match_id)
-    if not flask_login.current_user.is_authenticated or not flask_login.current_user == match.league.owner:
+    if not flask_login.current_user == match.league.owner:
         flask.flash('Make sure you are logged in and authorize to change scores on this match.', 'danger')
         return flask.redirect(flask.url_for('home'))
 
@@ -57,7 +54,7 @@ def match(id, match_id):
         db.session.commit()
         flask.flash('Match finished successfully!', 'success')
         next_page = flask.request.args.get('next')
-        return flask.redirect(next_page) if next_page else flask.redirect(flask.url_for('leagues.matches', id=id))
+        return flask.redirect(next_page) if next_page else flask.redirect(flask.url_for('leagues.phases', id=id))
 
     return flask.render_template('leagues/finish_match.html', form=form)
 
@@ -126,6 +123,7 @@ class League():
             if not all(map(lambda e: e[1]['done'], self.phases[key]['encounters'].items())):
                 return key
         return None
+
     def calculate_scores(self, encounter):
         player_one_score = {"total": 0, "goal_difference": 0}
         player_two_score = {"total": 0, "goal_difference": 0}
