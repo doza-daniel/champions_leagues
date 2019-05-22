@@ -88,41 +88,9 @@ class RegisterPlayerForm(FlaskForm):
 
     submit = SubmitField('Register Player')
 
-def generate_edit_match_form(match):
-    class EditMatchForm(FlaskForm): pass
-    setattr(EditMatchForm, f"player_one_score_{match.id}", IntegerField(
-            f"{match.player_one.name} {match.player_one.last_name}",
-            validators=[NumberRange(min=0)],
-            default=0))
-
-    setattr(EditMatchForm, f"player_two_score_{match.id}", IntegerField(
-            f"{match.player_two.name} {match.player_two.last_name}",
-            validators=[NumberRange(min=0)],
-            default=0))
-
-    setattr(EditMatchForm, f"played_on_{match.id}",
-            DateField('Played on', default=date.today(), format='%Y-%m-%d'))
-
-    setattr(EditMatchForm, f"{match.id}", SubmitField('Finish'))
-
-    def validate(self):
-        if not FlaskForm.validate(self):
-            return False
-        valid = self[f"player_one_score_{match.id}"].data != \
-                self[f"player_two_score_{match.id}"].data
-        if not valid:
-            self[f"player_one_score_{match.id}"].errors.append("can't be equal")
-            self[f"player_two_score_{match.id}"].errors.append("can't be equal")
-
-        return valid
-
-    EditMatchForm.validate = validate
-
-    return EditMatchForm()
-
-class EditMatchFormm(FlaskForm):
+class EditMatchForm(FlaskForm):
     def __init__(self, match, *args, **kwargs):
-        super(EditMatchFormm, self).__init__(*args, **kwargs)
+        super(EditMatchForm, self).__init__(*args, **kwargs)
         self.player_one_score.label = Label(self.player_one_score.id, f"{match.player_one.name} {match.player_one.last_name}")
         self.player_two_score.label = Label(self.player_two_score.id, f"{match.player_two.name} {match.player_two.last_name}")
 

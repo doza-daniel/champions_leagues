@@ -101,7 +101,7 @@ def match(id, match_id):
         flask.flash('Make sure you are logged in and authorize to change scores on this match.', 'danger')
         return flask.redirect(flask.url_for('home'))
 
-    form = forms.EditMatchFormm(match)
+    form = forms.EditMatchForm(match)
     print(form.player_one_score.label)
     if form.validate_on_submit():
         match.player_one_score = form.player_one_score.data
