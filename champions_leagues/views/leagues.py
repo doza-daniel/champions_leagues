@@ -1,7 +1,7 @@
 import flask
 import flask_login
 from functools import reduce
-from itertools import groupby, dropwhile
+from itertools import groupby
 from hashlib import sha1
 
 import champions_leagues.models as models
@@ -12,7 +12,12 @@ leagues = flask.Blueprint('leagues', __name__, url_prefix='/leagues')
 
 @leagues.route("/")
 def list_leagues():
-    leagues = filter(lambda l: l.date_started, models.League.query.all())
+    owned = flask.request.args.get('owned')
+    leagues = []
+    if flask_login.current_user.is_authenticated and owned:
+        leagues = models.League.query.filter_by(owner=flask_login.current_user)
+    else:
+        leagues = models.League.query.filter(models.League.date_started is not None)
     return flask.render_template('leagues/list.html', leagues=leagues)
 
 @leagues.route("/<id>/phases/", defaults={'phase_num':0})

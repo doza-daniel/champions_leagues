@@ -34,7 +34,7 @@
                 Settings
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{{ url_for('list_leagues') }}">Moje lige</a>
+                <a class="dropdown-item" href="{{ url_for('leagues.list_leagues', owned=True) }}">Moje lige</a>
                 <a class="dropdown-item" href="{{ url_for('register_player') }}">Registruj Igraca</a>
                 <a class="dropdown-item" href="{{ url_for('create_league') }}">Nova Liga</a>
                 <div class="dropdown-divider"></div>
