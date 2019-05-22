@@ -26,11 +26,19 @@ def phases(id, phase_num=0):
     page = flask.request.args.get('page')
     if page is None:
         page = 'groups'
+
+    if league.current_phase() is None or \
+        flask_login.current_user.is_authenticated and \
+        flask_login.current_user == league.model.owner:
+        max_phases=3
+    else:
+        max_phases = league.current_phase() + 1
+
     return flask.render_template(
         f'leagues/{page}.html',
         current_phase=league.phases[phase_num],
         current_phase_num=phase_num,
-        max_phases=3,
+        max_phases=max_phases,
         league=league
     )
 
@@ -175,8 +183,9 @@ class League():
 
     def current_phase(self):
         for key in sorted(self.phases.keys()):
-            if not all(map(lambda e: e[1]['done'], self.phases[key]['encounters'].items())):
-                return key
+            for _, group in self.phases[key]['groups'].items():
+                if not all(map(lambda e: e[1]['done'], group['encounters'].items())):
+                    return key
         return None
 
     def calculate_scores(self, encounter):
