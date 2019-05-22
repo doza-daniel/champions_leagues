@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content-section">
+    <form method="POST" action="">
+      {{ form.hidden_tag() }}
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Finish Match</legend>
+        <div class="form-group form-inline">
+          {{ form.player_one_score.label(class="label form-control-label") }}
+          {% if form.player_one_score.errors %}
+            {{ form.player_one_score(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.player_one_score.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.player_one_score(class="date form-control form-control-lg") }}
+          {% endif %}
+        </div>
+        <div class="form-group form-inline">
+          {{ form.player_two_score.label(class="label form-control-label") }}
+          {% if form.player_two_score.errors %}
+            {{ form.player_two_score(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in form.player_two_score.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+          {% else %}
+            {{ form.player_two_score(class="date form-control form-control-lg") }}
+          {% endif %}
+        </div>
+        <div class="form-group">
+          {{ form.played_on.label(class="form-control-label") }}
+          {% if form.played_on.errors %}
+            {{ form.played_on(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.played_on.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.played_on(class="date form-control form-control-lg") }}
+          {% endif %}
+        </div>
+      </fieldset>
+      <div class="form-group">
+        {{ form.submit(class="btn btn-outline-info") }}
+      </div>
+    </form>
+  </div>
+{% endblock content %}

@@ -5,6 +5,8 @@ from itertools import groupby, dropwhile
 from hashlib import sha1
 
 import champions_leagues.models as models
+import champions_leagues.forms as forms
+from champions_leagues import db
 
 leagues = flask.Blueprint('leagues', __name__, url_prefix='/leagues')
 
@@ -39,9 +41,25 @@ def leaderboard(id):
     temporary_scores = {p.name + " " + p.last_name: 0 for p in league.model.players}
     return flask.render_template('leagues/leaderboard.html', scores=temporary_scores, league=league)
 
-@leagues.route("/<id>/match/<match_id>")
+@leagues.route("/<int:id>/match/<int:match_id>", methods=['GET', 'POST'])
 def match(id, match_id):
-    return flask.redirect(flask.url_for('leagues.phases', id=id))
+    match = models.Match.query.get(match_id)
+    if not flask_login.current_user.is_authenticated or not flask_login.current_user == match.league.owner:
+        flask.flash('Make sure you are logged in and authorize to change scores on this match.', 'danger')
+        return flask.redirect(flask.url_for('home'))
+
+    form = forms.EditMatchFormm(match)
+    print(form.player_one_score.label)
+    if form.validate_on_submit():
+        match.player_one_score = form.player_one_score.data
+        match.player_two_score = form.player_two_score.data
+        match.played_on = form.played_on.data
+        db.session.commit()
+        flask.flash('Match finished successfully!', 'success')
+        next_page = flask.request.args.get('next')
+        return flask.redirect(next_page) if next_page else flask.redirect(flask.url_for('leagues.matches', id=id))
+
+    return flask.render_template('leagues/finish_match.html', form=form)
 
 
 @leagues.route("/<id>/encounter")

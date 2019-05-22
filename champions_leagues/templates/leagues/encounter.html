@@ -9,10 +9,10 @@
   </div>
   <hr>
   {% for match in encounter.matches %}
-    {% if not match.played_on and owner %}
+    {% if owner %}
       {% set hoverable="group-row-hoverable" %}
       {% set clickable="clickable-row" %}
-      {% set finish_href="data-href=" + url_for('leagues.match', id=league.model.id, match_id=match.id) %}
+      {% set finish_href="data-href=" + url_for('leagues.match', id=league.model.id, match_id=match.id, next=request.url) %}
     {% endif %}
     <div class="row text-xl-center group-head">
       <div class="col-xl">
@@ -32,5 +32,10 @@
     </div>
     <hr>
   {% endfor %}
+  <a type="button"
+     class="btn btn-default text-center"
+     href="{{url_for('leagues.matches', id=league.model.id)}}">
+    Back to matches
+  </a>
 
 {% endblock content %}
