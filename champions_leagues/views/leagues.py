@@ -68,7 +68,7 @@ def start(id):
         return flask.redirect(flask.url_for('leagues.start', id=id))
 
     return flask.render_template(
-        'edit_league.html',
+        'leagues/start.html',
         title='Start League',
         start_form=start_form,
         remove_form=remove_form,
