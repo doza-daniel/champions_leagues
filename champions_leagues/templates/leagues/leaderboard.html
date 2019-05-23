@@ -1,22 +1,24 @@
 {% extends "leagues/preview_layout.html" %}
 {% set active_page = "leaderboard" %}
 {% block league_preview_content %}
-  <table class="table table-hover">
-    <thead>
-      <th>
-        Player
-      </th>
-      <th>
-        Score
-      </th>
-    </thead>
-    <tbody>
-      {% for player, score in scores %}
-        <tr>
-          <td>{{ player.name + " " + player.last_name }}</td>
-          <td>{{ score.total }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="content-section">
+    <table class="table table-hover">
+      <thead>
+        <th>
+          Player
+        </th>
+        <th>
+          Score
+        </th>
+      </thead>
+      <tbody>
+        {% for player, score in scores %}
+          <tr>
+            <td>{{ player.name + " " + player.last_name }}</td>
+            <td>{{ score.total }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock league_preview_content %}
