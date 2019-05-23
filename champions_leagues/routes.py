@@ -32,6 +32,11 @@ def logout():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    ##################################
+    # registering disabled temporarily
+    return redirect(url_for('home'))
+    ##################################
+
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = RegistrationForm()
