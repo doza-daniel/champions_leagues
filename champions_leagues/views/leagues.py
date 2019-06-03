@@ -27,12 +27,15 @@ def phases(id, phase_num=0):
     if page is None:
         page = 'groups'
 
-    if league.current_phase() is None or \
-        flask_login.current_user.is_authenticated and \
-        flask_login.current_user == league.model.owner:
-        max_phases=3
-    else:
-        max_phases = league.current_phase() + 1
+    max_phases = 3
+    # owner wanted everyone to see all 3 phases
+    # left it commented in case he changes his mind
+    # if league.current_phase() is None or \
+    #     flask_login.current_user.is_authenticated and \
+    #     flask_login.current_user == league.model.owner:
+    #     max_phases=3
+    # else:
+    #     max_phases = league.current_phase() + 1
 
     return flask.render_template(
         f'leagues/{page}.html',
