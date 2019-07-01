@@ -184,6 +184,16 @@ class League():
     def encounter_key(self, match):
         return '-'.join([str(match.player_one.id), str(match.player_two.id)])
 
+    def number_of_matches_played(self, p):
+        count = 0
+        for _, phase in self.phases.items():
+            for _, group in phase['groups'].items():
+                for _, encounter in group['encounters'].items():
+                    m = encounter['matches'][0]
+                    if encounter['done'] and (m.player_one == p or m.player_two == p):
+                        count += 1
+        return count
+
     def current_phase(self):
         for key in sorted(self.phases.keys()):
             for _, group in self.phases[key]['groups'].items():
@@ -216,7 +226,7 @@ class League():
         return (player_one_score, player_two_score)
 
     def leaderboard(self):
-        leaderboard = {p: {"goal_difference": 0, "total": 0} for p in self.model.players}
+        leaderboard = {p: {"goal_difference": 0, "total": 0, "nplayed": self.number_of_matches_played(p)} for p in self.model.players}
         for _, phase in self.phases.items():
             for _, group in phase['groups'].items():
                 for _, encounter in group['encounters'].items():

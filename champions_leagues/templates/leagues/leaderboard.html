@@ -8,6 +8,9 @@
           Player
         </th>
         <th>
+          Matches Played
+        </th>
+        <th>
           Score
         </th>
       </thead>
@@ -15,6 +18,7 @@
         {% for player, score in scores %}
           <tr>
             <td>{{ player.name + " " + player.last_name }}</td>
+            <td>{{ score.nplayed }}</td>
             <td>{{ score.total }}</td>
           </tr>
         {% endfor %}
