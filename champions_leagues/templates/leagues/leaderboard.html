@@ -5,6 +5,9 @@
     <table class="table table-hover">
       <thead>
         <th>
+          Place
+        </th>
+        <th>
           Player
         </th>
         <th>
@@ -17,6 +20,7 @@
       <tbody>
         {% for player, score in scores %}
           <tr>
+            <td>{{ loop.index }}.</td>
             <td>{{ player.name + " " + player.last_name }}</td>
             <td>{{ score.nplayed }}</td>
             <td>{{ score.total }}</td>
