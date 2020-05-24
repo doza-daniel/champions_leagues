@@ -1,17 +1,16 @@
-{% extends "leagues/phase_layout.html" %}
+{% extends "leagues/preview_layout.html" %}
 {% set active_page = "matches" %}
-{% block phase_content %}
-  {% for group_id, obj in current_phase.groups.items() %}
+{% block league_preview_content %}
+  {% for group_id, obj in league.groups.items() %}
     <div class="row text-xl-center group-head">
       <div class="col-xl">
         <h2>Group {{ loop.index }}</h2>
       </div>
     </div>
-    {% for encounter_id, encounter in obj.encounters.items() %}
+    {% for encounter_id, encounter in obj['encounters'].items() %}
       {% set finish_match= url_for(
           'leagues.encounter',
           id=league.model.id,
-          phase_num=current_phase_num|int,
           group_id=group_id,
           encounter_id=encounter_id
         )
@@ -30,4 +29,4 @@
       </div>
     {% endfor %}
   {% endfor %}
-{% endblock phase_content %}
+{% endblock league_preview_content %}

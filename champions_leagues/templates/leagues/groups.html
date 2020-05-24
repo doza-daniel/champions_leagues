@@ -1,7 +1,7 @@
-{% extends "leagues/phase_layout.html" %}
+{% extends "leagues/preview_layout.html" %}
 {% set active_page = "groups" %}
-{% block phase_content %}
-  {% for group_id, obj in current_phase.groups.items() %}
+{% block league_preview_content %}
+  {% for group_id, obj in league.groups.items() %}
     <hr>
     <div class="row text-xl-center group-head">
       <div class="col-xl">
@@ -9,7 +9,7 @@
       </div>
     </div>
     <hr>
-    {% for player in obj.group.players %}
+    {% for player in obj['group'].players %}
       <div class="row group-row">
         <div class="col-md text-center">
           <h5>{{player.name + " " + player.last_name}}</h5>
@@ -17,4 +17,4 @@
       </div>
     {% endfor %}
   {% endfor %}
-{% endblock phase_content %}
+{% endblock league_preview_content %}

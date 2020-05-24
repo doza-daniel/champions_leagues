@@ -1,0 +1,42 @@
+{% extends "leagues/preview_layout.html" %}
+{% set active_page = "leaderboard" %}
+{% block league_preview_content %}
+  <div class="content-section">
+    {% for leaderboard in leaderboards %}
+      <div class="row text-xl-center group-head">
+        <div class="col-xl">
+          <h2>Group {{ loop.index }}</h2>
+        </div>
+      </div>
+      <div class="content-section">
+        <table class="table table-hover">
+          <thead>
+            <th>
+              Place
+            </th>
+            <th>
+              Player
+            </th>
+            <th>
+              Matches Played
+            </th>
+            <th>
+              Score
+            </th>
+          </thead>
+          <tbody>
+            {% for player, score in leaderboard %}
+              <tr>
+                <td>{{ loop.index }}.</td>
+                <td>{{ player.name + " " + player.last_name }}</td>
+                <td>{{ score.nplayed }}</td>
+                <td>{{ score.total }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <hr />
+    {% endfor %}
+  </div>
+{% endblock league_preview_content %}

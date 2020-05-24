@@ -17,7 +17,7 @@
       {% for league in leagues %}
       <tr class="clickable-row"
       data-href="{% if league.date_started %}
-          {{url_for('leagues.phases', id=league.id)}}
+          {{url_for('leagues.main_view', id=league.id)}}
         {% else %}
           {{url_for('leagues.start', id=league.id)}}
         {% endif %}
