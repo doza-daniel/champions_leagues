@@ -2,6 +2,9 @@ import flask
 import flask_login
 from functools import reduce
 from itertools import groupby, combinations
+from datetime import date
+
+from random import shuffle
 
 import champions_leagues.models as models
 import champions_leagues.forms as forms
@@ -19,29 +22,15 @@ def list_leagues():
         leagues = models.League.query.filter(models.League.date_started != None)
     return flask.render_template('leagues/list.html', leagues=leagues)
 
-@leagues.route("/<id>/phases/", defaults={'phase_num':0})
-@leagues.route("/<id>/phases/<int:phase_num>")
-def phases(id, phase_num=0):
+@leagues.route("/<id>/main_view")
+def main_view(id):
     league = League(id)
     page = flask.request.args.get('page')
     if page is None:
         page = 'groups'
 
-    max_phases = 3
-    # owner wanted everyone to see all 3 phases
-    # left it commented in case he changes his mind
-    # if league.current_phase() is None or \
-    #     flask_login.current_user.is_authenticated and \
-    #     flask_login.current_user == league.model.owner:
-    #     max_phases=3
-    # else:
-    #     max_phases = league.current_phase() + 1
-
     return flask.render_template(
         f'leagues/{page}.html',
-        current_phase=league.phases[phase_num],
-        current_phase_num=phase_num,
-        max_phases=max_phases,
         league=league
     )
 
@@ -59,11 +48,10 @@ def start(id):
 
     if start_form.start.data and start_form.validate():
         flask.flash(f"League has been started successfully!", 'success')
-        league.date_started = start_form.date_started.data
-        generate_league_matches(league,
-                start_form.group_size.data)
+        league.date_started = date.today()
+        generate_league_matches(league)
         db.session.commit()
-        return flask.redirect(flask.url_for('leagues.phases', id=id))
+        return flask.redirect(flask.url_for('leagues.main_view', id=id))
 
     if add_form.add.data and add_form.validate():
         for pID in add_form.players_to_add.data:
@@ -84,11 +72,10 @@ def start(id):
         add_form=add_form,
     )
 
-@leagues.route("/<id>/leaderboard")
-def leaderboard(id):
+@leagues.route("/<id>/leaderboards")
+def leaderboards(id):
     league = League(id)
-    temporary_scores = {p.name + " " + p.last_name: 0 for p in league.model.players}
-    return flask.render_template('leagues/leaderboard.html', scores=league.leaderboard(), league=league)
+    return flask.render_template('leagues/leaderboards.html', leaderboards=league.leaderboards(), league=league)
 
 @leagues.route("/create", methods=['GET', 'POST'])
 @flask_login.login_required
@@ -120,7 +107,7 @@ def match(id, match_id):
         db.session.commit()
         flask.flash('Match finished successfully!', 'success')
         next_page = flask.request.args.get('next')
-        return flask.redirect(next_page) if next_page else flask.redirect(flask.url_for('leagues.phases', id=id))
+        return flask.redirect(next_page) if next_page else flask.redirect(flask.url_for('leagues.main_view', id=id))
 
     return flask.render_template('leagues/finish_match.html', form=form)
 
@@ -129,7 +116,6 @@ def match(id, match_id):
 def encounter(id):
     league = League(id)
 
-    phase_num = int(flask.request.args.get('phase_num'))
     group_id = int(flask.request.args.get('group_id'))
     encounter_id = flask.request.args.get('encounter_id')
 
@@ -139,10 +125,11 @@ def encounter(id):
 
     return flask.render_template(
         'leagues/encounter.html',
-        encounter=league.encounter(phase_num, group_id, encounter_id),
+        encounter=league.encounter(group_id, encounter_id),
         league=league,
         owner=owner
     )
+
 
 class League():
     def __init__(self, id):
@@ -156,40 +143,35 @@ class League():
         def pair_add(p1, p2):
            return (p1[0] + p2[0], p1[1] + p2[1])
 
-        self.phases = {}
+        self.groups = {}
+        all_matches = self.model.matches
 
-        by_phase = lambda match: match.group.phase
-        for phase_num, matches in groupby(sorted(self.model.matches, key=by_phase), by_phase):
-            self.phases[phase_num] = {}
-            self.phases[phase_num]['groups'] = {}
+        by_group_id = lambda match: match.group.id
+        for group_id, group_matches in groupby(sorted(all_matches, key=by_group_id), by_group_id):
+            self.groups[group_id] = {'group': models.Group.query.get(group_id), 'encounters': {}}
 
-            by_group_id = lambda match: match.group.id
-            for group_id, matches in groupby(sorted(matches, key=by_group_id), by_group_id):
-                self.phases[phase_num]['groups'][group_id] = {'group': models.Group.query.get(group_id), 'encounters': {}}
+            for encounter_id, encounter_matches in groupby(sorted(group_matches, key=self.encounter_key), self.encounter_key):
+                encounter_matches = list(encounter_matches)
 
-                for encounter_id, matches in groupby(sorted(matches, key=self.encounter_key), self.encounter_key):
-                    matches = list(matches)
+                scores = reduce(
+                        lambda scores, match: pair_add(scores, calc_encounter_score(match)),
+                        encounter_matches,
+                        (0, 0)
+                )
 
-                    scores = reduce(lambda scores, match: pair_add(scores, calc_encounter_score(match)), matches, (0, 0))
-                    self.phases[phase_num]['groups'][group_id]['encounters'][encounter_id] = {
-                        'matches': matches,
-                        'p1': scores[0],
-                        'p2': scores[1],
-                        'done': all(map(lambda x: x.played_on, matches)),
-                    }
+                self.groups[group_id]['encounters'][encounter_id] = {
+                    'matches': encounter_matches,
+                    'p1': scores[0],
+                    'p2': scores[1],
+                    'done': all(map(lambda x: x.played_on, encounter_matches)),
+                }
 
-    def encounter(self, phase_num, group_id, encounter_id):
-        return self.phases[phase_num]['groups'][group_id]['encounters'][encounter_id]
+
+    def encounter(self, group_id, encounter_id):
+        return self.groups[group_id]['encounters'][encounter_id]
 
     def encounter_key(self, match):
         return '-'.join([str(match.player_one.id), str(match.player_two.id)])
-
-    def current_phase(self):
-        for key in sorted(self.phases.keys()):
-            for _, group in self.phases[key]['groups'].items():
-                if not all(map(lambda e: e[1]['done'], group['encounters'].items())):
-                    return key
-        return None
 
     def calculate_scores(self, encounter):
         player_one_score = {"total": 0, "goal_difference": 0}
@@ -215,55 +197,45 @@ class League():
 
         return (player_one_score, player_two_score)
 
-    def leaderboard(self):
-        leaderboard = {p: {"goal_difference": 0, "total": 0} for p in self.model.players}
-        for _, phase in self.phases.items():
-            for _, group in phase['groups'].items():
-                for _, encounter in group['encounters'].items():
-                    p1 = encounter['matches'][0].player_one
-                    p2 = encounter['matches'][0].player_two
-                    scores = self.calculate_scores(encounter)
-                    leaderboard[p1]["total"] += scores[0]["total"]
-                    leaderboard[p1]["goal_difference"] += scores[0]["goal_difference"]
-                    leaderboard[p2]["total"] += scores[1]["total"]
-                    leaderboard[p2]["goal_difference"] += scores[1]["goal_difference"]
+    def leaderboards(self):
+        leaderboards = []
+        for _, v in self.groups.items():
+            group = v['group']
+            leaderboard = {p: {"goal_difference": 0, "total": 0} for p in group.players}
+            for _, encounter in v['encounters'].items():
+                p1 = encounter['matches'][0].player_one
+                p2 = encounter['matches'][0].player_two
+                scores = self.calculate_scores(encounter)
+                leaderboard[p1]["total"] += scores[0]["total"]
+                leaderboard[p1]["goal_difference"] += scores[0]["goal_difference"]
+                leaderboard[p2]["total"] += scores[1]["total"]
+                leaderboard[p2]["goal_difference"] += scores[1]["goal_difference"]
 
-        leaderboard_sorted = sorted(leaderboard.items(), reverse=True,
-                key=lambda item: item[1]["total"]*1000 + item[1]["goal_difference"])
+            leaderboards.append(leaderboard)
 
-        return leaderboard_sorted
 
-def generate_league_matches(league, gsize, num_phases=3):
-    nplayers = len(league.players)
-    ngroups = gsize
-    groups=[]
-    for i in range(ngroups):
-        group = models.Group(league=league, size=gsize, phase=0)
-        groups.append(group)
-        db.session.add(group)
+        sorted_leaderboards = []
+        for leaderboard in leaderboards:
+            sorted_leaderboard = sorted(leaderboard.items(), reverse=True,
+                    key=lambda item: item[1]["total"]*1000 + item[1]["goal_difference"])
+            sorted_leaderboards.append(sorted_leaderboard)
 
-    for i in range(nplayers):
-        groups[i % ngroups].players.append(league.players[i])
+        return sorted_leaderboards
 
-    matches = []
+def generate_league_matches(league):
+    shuffle(league.players)
+
+    groups = [models.Group(league=league, phase=0), models.Group(league=league, phase=0)]
+
+    for i in range(len(league.players)):
+        groups[i%2].players.append(league.players[i])
+
     for group in groups:
+        group.size = len(group.players)
+        db.session.add(group)
         for p1, p2 in combinations(group.players, 2):
             db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
             db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
 
-    for phase in range(1, num_phases):
-        ng = [models.Group(league=league, size=gsize, phase=phase) for k in range(ngroups)]
-
-        for i, group in enumerate(ng):
-            for j in range(gsize):
-                if len(groups[j % gsize].players) > (j * (phase - 1) + i) % gsize:
-                    group.players.append(groups[j % gsize].players[(j * (phase - 1) + i) % gsize])
-
-        for group in ng:
-            db.session.add(group)
-            for p1, p2 in combinations(group.players, 2):
-                db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
-                db.session.add(models.Match(player_one=p1, player_two=p2, league=league, group=group))
-
-
     db.session.commit()
+

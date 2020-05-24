@@ -48,32 +48,6 @@
         {{ start_form.hidden_tag() }}
         <fieldset class="form-group">
           <legend class="border-bottom mb-4">Start league</legend>
-          <div class="form-group">
-            {{ start_form.date_started.label(class="form-control-label") }}
-            {% if start_form.date_started.errors %}
-              {{ start_form.date_started(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                {% for error in start_form.date_started.errors %}
-                  <span>{{ error }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ start_form.date_started(class="date form-control form-control-lg") }}
-            {% endif %}
-          </div>
-          <div class="form-group">
-            {{ start_form.group_size.label(class="form-control-label") }}
-            {% if start_form.group_size.errors %}
-              {{ start_form.group_size(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                {% for error in start_form.group_size.errors %}
-                  <span>{{ error }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ start_form.group_size(class="date form-control form-control-lg") }}
-            {% endif %}
-          </div>
         </fieldset>
         <div class="form-group">
           {{ start_form.start(class="btn btn-outline-info") }}
